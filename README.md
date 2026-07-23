@@ -1,4 +1,4 @@
-# web-quick
+# quilsolWEBSITE
 
 Quicksol Global corporate website built with Next.js, TypeScript, Tailwind CSS, next-intl and Framer Motion.
 
