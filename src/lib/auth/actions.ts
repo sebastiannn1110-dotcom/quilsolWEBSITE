@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -36,6 +37,29 @@ const resetSchema = z.object({
 
 function redirectWithMessage(locale: Locale, path: string, message: string): never {
   redirect(`/${locale}${path}?message=${encodeURIComponent(message)}`);
+}
+
+async function requestOrigin() {
+  const requestHeaders = await headers();
+  const origin = requestHeaders.get("origin");
+
+  if (origin?.startsWith("https://") || origin?.startsWith("http://localhost")) {
+    return origin.replace(/\/$/, "");
+  }
+
+  const host =
+    requestHeaders.get("x-forwarded-host") || requestHeaders.get("host");
+
+  if (host) {
+    const protocol =
+      requestHeaders.get("x-forwarded-proto") ||
+      (host.startsWith("localhost") ? "http" : "https");
+
+    return `${protocol}://${host}`;
+  }
+
+  return (process.env.NEXT_PUBLIC_SITE_URL || "https://quiksol-web.onrender.com")
+    .replace(/\/$/, "");
 }
 
 function adminBootstrapEmails() {
@@ -167,8 +191,13 @@ export async function forgotPasswordAction(formData: FormData) {
     redirectWithMessage(parsed.data.locale, "/forgot-password", "Supabase is not configured.");
   }
 
+  const origin = await requestOrigin();
+  const nextPath = `/${parsed.data.locale}/reset-password`;
+  const callbackUrl = new URL(`/${parsed.data.locale}/auth/callback`, origin);
+  callbackUrl.searchParams.set("next", nextPath);
+
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || ""}/${parsed.data.locale}/reset-password`,
+    redirectTo: callbackUrl.toString(),
   });
 
   redirectWithMessage(parsed.data.locale, "/login", "Password reset email sent.");

@@ -6,6 +6,16 @@ import { routing } from "./src/i18n/routing";
 const intlMiddleware = createMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
+  const recoveryCode = request.nextUrl.searchParams.get("code");
+
+  if (request.nextUrl.pathname === "/" && recoveryCode) {
+    const recoveryUrl = request.nextUrl.clone();
+    recoveryUrl.pathname = "/es/auth/callback";
+    recoveryUrl.searchParams.set("next", "/es/reset-password");
+
+    return NextResponse.redirect(recoveryUrl);
+  }
+
   const response = intlMiddleware(request);
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publicKey =
