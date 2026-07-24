@@ -10,12 +10,14 @@ function safeResetPath(locale: Locale, requestedPath: string | null) {
 function publicRequestOrigin(request: NextRequest) {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProtocol = request.headers.get("x-forwarded-proto");
+  const isInternalHost = (host: string) =>
+    host.startsWith("localhost") || host.startsWith("127.0.0.1");
 
-  if (forwardedHost) {
+  if (forwardedHost && !isInternalHost(forwardedHost)) {
     return `${forwardedProtocol || "https"}://${forwardedHost}`;
   }
 
-  if (!request.nextUrl.host.startsWith("localhost:10000")) {
+  if (!isInternalHost(request.nextUrl.host)) {
     return request.nextUrl.origin;
   }
 
