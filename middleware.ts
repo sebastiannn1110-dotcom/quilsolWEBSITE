@@ -5,12 +5,30 @@ import { routing } from "./src/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
+function publicRequestOrigin(request: NextRequest) {
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProtocol = request.headers.get("x-forwarded-proto");
+
+  if (forwardedHost) {
+    return `${forwardedProtocol || "https"}://${forwardedHost}`;
+  }
+
+  if (!request.nextUrl.host.startsWith("localhost:10000")) {
+    return request.nextUrl.origin;
+  }
+
+  return "https://quiksol-web.onrender.com";
+}
+
 export default async function middleware(request: NextRequest) {
   const recoveryCode = request.nextUrl.searchParams.get("code");
 
   if (request.nextUrl.pathname === "/" && recoveryCode) {
-    const recoveryUrl = request.nextUrl.clone();
-    recoveryUrl.pathname = "/es/auth/callback";
+    const recoveryUrl = new URL(
+      "/es/auth/callback",
+      publicRequestOrigin(request),
+    );
+    recoveryUrl.search = request.nextUrl.search;
     recoveryUrl.searchParams.set("next", "/es/reset-password");
 
     return NextResponse.redirect(recoveryUrl);

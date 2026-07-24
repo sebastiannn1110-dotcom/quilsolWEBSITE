@@ -7,6 +7,21 @@ function safeResetPath(locale: Locale, requestedPath: string | null) {
   return requestedPath === expectedPath ? requestedPath : expectedPath;
 }
 
+function publicRequestOrigin(request: NextRequest) {
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProtocol = request.headers.get("x-forwarded-proto");
+
+  if (forwardedHost) {
+    return `${forwardedProtocol || "https"}://${forwardedHost}`;
+  }
+
+  if (!request.nextUrl.host.startsWith("localhost:10000")) {
+    return request.nextUrl.origin;
+  }
+
+  return "https://quiksol-web.onrender.com";
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ locale: string }> },
@@ -20,6 +35,7 @@ export async function GET(
     locale,
     request.nextUrl.searchParams.get("next"),
   );
+  const publicOrigin = publicRequestOrigin(request);
 
   if (code) {
     const supabase = await createServerSupabaseClient();
@@ -28,12 +44,12 @@ export async function GET(
       const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (!error) {
-        return NextResponse.redirect(new URL(nextPath, request.url));
+        return NextResponse.redirect(new URL(nextPath, publicOrigin));
       }
     }
   }
 
-  const errorUrl = new URL(`/${locale}/forgot-password`, request.url);
+  const errorUrl = new URL(`/${locale}/forgot-password`, publicOrigin);
   errorUrl.searchParams.set(
     "message",
     locale === "es"
