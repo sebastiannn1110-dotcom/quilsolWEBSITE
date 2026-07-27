@@ -4,19 +4,22 @@ import type { Locale } from "@/lib/constants";
 import { localizedPath } from "@/lib/dictionary";
 import type { CatalogProduct } from "@/lib/catalog/types";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ProductVisual } from "./ProductVisual";
 
-function priceLabel(product: CatalogProduct) {
+function priceLabel(product: CatalogProduct, locale: Locale) {
   if (product.price_visibility === "quote_only" || product.price == null) {
-    return "Request quote";
+    return locale === "es" ? "Solicitar cotización" : "Request quote";
   }
 
   if (product.price_visibility === "authenticated") {
-    return "Sign in for price";
+    return locale === "es" ? "Inicia sesión para ver precio" : "Sign in for price";
   }
 
-  return new Intl.NumberFormat("en", {
+  return new Intl.NumberFormat(locale === "es" ? "es-CO" : "en-US", {
     style: "currency",
     currency: product.currency || "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: product.price < 1 ? 4 : 2,
   }).format(product.price);
 }
 
@@ -39,9 +42,11 @@ export function ProductCard({
             className="object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-slate-500">
-            Product media pending
-          </div>
+          <ProductVisual
+            mpn={product.mpn}
+            category={product.category_name}
+            compact
+          />
         )}
       </div>
       <div className="flex flex-1 flex-col p-5">
@@ -86,7 +91,16 @@ export function ProductCard({
           </div>
         </dl>
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-          <p className="font-semibold text-slate-950">{priceLabel(product)}</p>
+          <div>
+            <p className="font-semibold text-slate-950">
+              {priceLabel(product, locale)}
+            </p>
+            {product.price_is_estimate ? (
+              <p className="mt-0.5 text-[11px] font-medium text-slate-500">
+                {locale === "es" ? "Precio unitario estimado" : "Estimated unit price"}
+              </p>
+            ) : null}
+          </div>
           <div className="flex gap-2">
             <button
               type="button"
@@ -122,4 +136,3 @@ export function ProductCard({
     </article>
   );
 }
-

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { FileText, Share2, ShoppingCart } from "lucide-react";
 import { StatusPanel } from "@/components/catalog/StatusPanel";
+import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { PageHero } from "@/components/sections/PageHero";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { locales, type Locale } from "@/lib/constants";
@@ -13,6 +14,45 @@ import { createPageMetadata } from "@/lib/seo";
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
+
+function priceLabel(
+  price: number | null,
+  currency: string,
+  locale: Locale,
+) {
+  if (price == null) {
+    return locale === "es" ? "Solicitar cotización" : "Request quote";
+  }
+
+  return new Intl.NumberFormat(locale === "es" ? "es-CO" : "en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: price < 1 ? 4 : 2,
+  }).format(price);
+}
+
+function specificationValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (
+          item &&
+          typeof item === "object" &&
+          "qFrom" in item &&
+          "price" in item
+        ) {
+          const tier = item as { qFrom: unknown; qTo?: unknown; price: unknown };
+          return `${tier.qFrom}+ units: $${tier.price}`;
+        }
+
+        return String(item);
+      })
+      .join(" · ");
+  }
+
+  return String(value);
+}
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale, slug: "placeholder" }));
@@ -70,7 +110,9 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
-  const specs = Object.entries(product.specifications || {});
+  const specs = Object.entries(product.specifications || {}).filter(
+    ([key]) => key !== "source_url",
+  );
 
   return (
     <>
@@ -95,9 +137,10 @@ export default async function ProductPage({ params }: PageProps) {
                   className="object-cover"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-slate-500">
-                  Product image pending
-                </div>
+                <ProductVisual
+                  mpn={product.mpn}
+                  category={product.category_name}
+                />
               )}
             </div>
             <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
@@ -112,7 +155,7 @@ export default async function ProductPage({ params }: PageProps) {
                         {key}
                       </dt>
                       <dd className="mt-1 text-sm text-slate-800">
-                        {String(item)}
+                        {specificationValue(item)}
                       </dd>
                     </div>
                   ))}
@@ -127,6 +170,18 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
           <aside className="space-y-5">
             <div className="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-6 border-b border-slate-100 pb-5">
+                <p className="text-3xl font-semibold text-slate-950">
+                  {priceLabel(product.price, product.currency, locale)}
+                </p>
+                {product.price_is_estimate ? (
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {locale === "es"
+                      ? "Precio unitario estimado en USD. Confirma precio final, stock y envío mediante RFQ."
+                      : "Estimated USD unit price. Confirm final price, stock and freight by RFQ."}
+                  </p>
+                ) : null}
+              </div>
               <dl className="grid gap-4 sm:grid-cols-2">
                 {[
                   ["MPN", product.mpn],
@@ -168,6 +223,12 @@ export default async function ProductPage({ params }: PageProps) {
                     Datasheet
                   </ButtonLink>
                 ) : null}
+                {product.source_url ? (
+                  <ButtonLink href={product.source_url} variant="secondary">
+                    <FileText aria-hidden="true" className="h-4 w-4" />
+                    {locale === "es" ? "Ver fuente del producto" : "View product source"}
+                  </ButtonLink>
+                ) : null}
                 <ButtonLink href="#" variant="secondary">
                   <Share2 aria-hidden="true" className="h-4 w-4" />
                   Share
@@ -184,4 +245,3 @@ export default async function ProductPage({ params }: PageProps) {
     </>
   );
 }
-

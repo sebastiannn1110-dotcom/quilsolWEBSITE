@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CatalogPagination } from "@/components/catalog/CatalogPagination";
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { StatusPanel } from "@/components/catalog/StatusPanel";
@@ -56,6 +57,7 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
     searchCatalogProducts(filters),
     getCatalogFacets(),
   ]);
+  const totalPages = Math.max(1, Math.ceil(result.count / result.pageSize));
 
   if (result.error) {
     console.error("Catalog load failed", result.error);
@@ -71,15 +73,18 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
           <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <h1 className="text-3xl font-semibold text-slate-950 md:text-4xl">
-                Electronic components catalog
+                {locale === "es"
+                  ? "Catálogo de componentes electrónicos"
+                  : "Electronic components catalog"}
               </h1>
               <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
-                Search published inventory by MPN, SKU, brand, category and
-                availability. Prices and private inventory stay protected.
+                {locale === "es"
+                  ? "Explora 500 referencias reales de fabricantes líderes. Los precios unitarios son estimaciones de mercado y se confirman mediante cotización."
+                  : "Explore 500 real manufacturer references. Unit prices are market estimates and are confirmed by quotation."}
               </p>
             </div>
             <p className="rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
-              {result.count} results
+              {result.count} {locale === "es" ? "resultados" : "results"}
             </p>
           </div>
         </div>
@@ -109,11 +114,23 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
               body="The catalog service is temporarily unavailable. Try again or send an RFQ with the exact manufacturer part number."
             />
           ) : result.products.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {result.products.map((product) => (
-                <ProductCard key={product.id} product={product} locale={locale} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {result.products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    locale={locale}
+                  />
+                ))}
+              </div>
+              <CatalogPagination
+                locale={locale}
+                currentPage={result.page}
+                totalPages={totalPages}
+                searchParams={queryParams}
+              />
+            </>
           ) : (
             <StatusPanel
               title="No published products match this search"

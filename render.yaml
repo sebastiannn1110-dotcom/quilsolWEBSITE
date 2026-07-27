@@ -13,3 +13,5 @@ services:
         value: 20.19.6
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
+      - key: CATALOG_SOURCE
+        value: supabase

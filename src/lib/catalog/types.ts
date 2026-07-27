@@ -13,7 +13,9 @@ export type CatalogProduct = {
   short_description: string | null;
   description?: string | null;
   brand_name: string | null;
+  brand_slug?: string | null;
   category_name: string | null;
+  category_slug?: string | null;
   manufacturer_name: string | null;
   status: "draft" | "published" | "archived";
   visibility: "public" | "authenticated";
@@ -21,6 +23,7 @@ export type CatalogProduct = {
   currency: string;
   price: number | null;
   price_visibility: ProductPriceVisibility;
+  price_is_estimate?: boolean;
   stock_quantity: number | null;
   stock_status: string | null;
   minimum_order_quantity: number | null;
@@ -32,6 +35,7 @@ export type CatalogProduct = {
   datasheet_url: string | null;
   primary_image_url: string | null;
   primary_image_alt: string | null;
+  source_url?: string | null;
   specifications: Record<string, unknown> | null;
   updated_at: string | null;
 };

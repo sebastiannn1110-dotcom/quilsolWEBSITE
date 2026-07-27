@@ -1,9 +1,18 @@
 import "server-only";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import {
+  getBundledCatalogFacets,
+  getBundledCatalogProductBySlug,
+  searchBundledCatalogProducts,
+} from "./local";
 import type { CatalogFilters, CatalogProduct, CatalogResult } from "./types";
 
 const pageSize = 12;
+
+function bundledCatalogEnabled() {
+  return process.env.CATALOG_SOURCE !== "supabase";
+}
 
 export function normalizePartReference(value: string) {
   return value
@@ -12,19 +21,29 @@ export function normalizePartReference(value: string) {
     .replace(/[^A-Z0-9]/g, "");
 }
 
+function catalogProductFromData(data: unknown) {
+  const product = data as CatalogProduct;
+  const sourceUrl = product.specifications?.source_url;
+
+  return {
+    ...product,
+    source_url:
+      product.source_url ||
+      (typeof sourceUrl === "string" ? sourceUrl : undefined),
+  };
+}
+
 export async function searchCatalogProducts(
   filters: CatalogFilters,
 ): Promise<CatalogResult> {
+  if (bundledCatalogEnabled()) {
+    return searchBundledCatalogProducts(filters);
+  }
+
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
-    return {
-      products: [],
-      count: 0,
-      page: filters.page || 1,
-      pageSize,
-      configured: false,
-    };
+    return searchBundledCatalogProducts(filters);
   }
 
   const page = Math.max(filters.page || 1, 1);
@@ -92,7 +111,7 @@ export async function searchCatalogProducts(
   }
 
   return {
-    products: (data || []) as CatalogProduct[],
+    products: (data || []).map(catalogProductFromData),
     count: count || 0,
     page,
     pageSize,
@@ -101,10 +120,22 @@ export async function searchCatalogProducts(
 }
 
 export async function getCatalogProductBySlug(slug: string, locale: string) {
+  if (bundledCatalogEnabled()) {
+    return {
+      product: getBundledCatalogProductBySlug(slug),
+      configured: true,
+      locale,
+    };
+  }
+
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
-    return { product: null, configured: false };
+    return {
+      product: getBundledCatalogProductBySlug(slug),
+      configured: true,
+      locale,
+    };
   }
 
   const { data, error } = await supabase
@@ -120,17 +151,21 @@ export async function getCatalogProductBySlug(slug: string, locale: string) {
   }
 
   return {
-    product: data as CatalogProduct | null,
+    product: data ? catalogProductFromData(data) : null,
     configured: true,
     locale,
   };
 }
 
 export async function getCatalogFacets() {
+  if (bundledCatalogEnabled()) {
+    return getBundledCatalogFacets();
+  }
+
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
-    return { brands: [], categories: [], configured: false };
+    return getBundledCatalogFacets();
   }
 
   const [brands, categories] = await Promise.all([

@@ -12,7 +12,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "import:digikey": "node scripts/import-digikey-products.mjs"
+    "import:digikey": "node scripts/import-digikey-products.mjs",
+    "catalog:generate": "node scripts/generate-quicksol-catalog.mjs",
+    "catalog:migration": "node scripts/generate-supabase-catalog-migration.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
