@@ -9,13 +9,9 @@ const desktopVideoSource = `/videos/quicksol-home-hero.mp4?v=${mediaVersion}`;
 const mobilePosterSource = `/videos/quicksol-home-hero-mobile-poster.webp?v=${mediaVersion}`;
 const desktopPosterSource = `/videos/quicksol-home-hero-poster.webp?v=${mediaVersion}`;
 
-type LegacyMediaQueryList = MediaQueryList & {
-  addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
-  removeListener?: (listener: (event: MediaQueryListEvent) => void) => void;
-};
-
 export function HeroVideo({ label }: { label: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const [playbackBlocked, setPlaybackBlocked] = useState(false);
 
   useEffect(() => {
@@ -23,72 +19,62 @@ export function HeroVideo({ label }: { label: string }) {
 
     if (!video) return;
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
     const mobileViewport = window.matchMedia("(max-width: 767px)");
-    let activeSource = "";
-    let usingFallback = false;
+    let retryCount = 0;
+    let retryTimer: number | undefined;
 
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
 
     const playVideo = async () => {
-      if (reducedMotion || document.hidden) return;
+      if (document.hidden) return;
 
       try {
         await video.play();
+        retryCount = 0;
+        window.clearTimeout(retryTimer);
+        setVideoPlaying(true);
         setPlaybackBlocked(false);
       } catch {
-        setPlaybackBlocked(true);
+        retryCount += 1;
+
+        if (retryCount <= 3) {
+          window.clearTimeout(retryTimer);
+          retryTimer = window.setTimeout(() => {
+            void playVideo();
+          }, retryCount * 350);
+        } else {
+          setPlaybackBlocked(true);
+        }
       }
     };
 
-    const loadVideoSource = () => {
-      const useMobileVideo = mobileViewport.matches && !usingFallback;
-      const nextSource = useMobileVideo
-        ? mobileVideoSource
-        : desktopVideoSource;
-      const nextPoster = useMobileVideo
-        ? mobilePosterSource
-        : desktopPosterSource;
+    const revealPlayingVideo = () => {
+      retryCount = 0;
+      window.clearTimeout(retryTimer);
+      setVideoPlaying(true);
+      setPlaybackBlocked(false);
+    };
 
-      if (activeSource === nextSource) {
-        void playVideo();
-        return;
-      }
-
-      activeSource = nextSource;
-      video.pause();
-      video.poster = nextPoster;
-      video.src = nextSource;
+    const reloadResponsiveSource = () => {
+      setVideoPlaying(false);
       video.load();
+      void playVideo();
     };
 
-    const recoverFromSourceError = () => {
-      if (activeSource === mobileVideoSource && !usingFallback) {
-        usingFallback = true;
-        loadVideoSource();
-      } else {
-        setPlaybackBlocked(true);
-      }
+    const markPlaybackBlocked = () => setPlaybackBlocked(true);
+    const resumeWhenVisible = () => {
+      if (!document.hidden) void playVideo();
     };
-
-    const resumeWhenVisible = () => void playVideo();
     const resumeAfterInteraction = () => void playVideo();
 
-    video.addEventListener("loadeddata", playVideo);
     video.addEventListener("canplay", playVideo);
-    video.addEventListener("error", recoverFromSourceError);
-    const legacyMobileViewport = mobileViewport as LegacyMediaQueryList;
-
-    if (typeof mobileViewport.addEventListener === "function") {
-      mobileViewport.addEventListener("change", loadVideoSource);
-    } else {
-      legacyMobileViewport.addListener?.(loadVideoSource);
-    }
+    video.addEventListener("playing", revealPlayingVideo);
+    video.addEventListener("error", markPlaybackBlocked);
+    mobileViewport.addEventListener("change", reloadResponsiveSource);
     document.addEventListener("visibilitychange", resumeWhenVisible);
+    window.addEventListener("pageshow", resumeWhenVisible);
     window.addEventListener("pointerdown", resumeAfterInteraction, {
       once: true,
       passive: true,
@@ -98,21 +84,17 @@ export function HeroVideo({ label }: { label: string }) {
       passive: true,
     });
 
-    loadVideoSource();
+    void playVideo();
 
     return () => {
+      window.clearTimeout(retryTimer);
       video.pause();
-      video.removeAttribute("src");
-      video.load();
-      video.removeEventListener("loadeddata", playVideo);
       video.removeEventListener("canplay", playVideo);
-      video.removeEventListener("error", recoverFromSourceError);
-      if (typeof mobileViewport.removeEventListener === "function") {
-        mobileViewport.removeEventListener("change", loadVideoSource);
-      } else {
-        legacyMobileViewport.removeListener?.(loadVideoSource);
-      }
+      video.removeEventListener("playing", revealPlayingVideo);
+      video.removeEventListener("error", markPlaybackBlocked);
+      mobileViewport.removeEventListener("change", reloadResponsiveSource);
       document.removeEventListener("visibilitychange", resumeWhenVisible);
+      window.removeEventListener("pageshow", resumeWhenVisible);
       window.removeEventListener("pointerdown", resumeAfterInteraction);
       window.removeEventListener("touchstart", resumeAfterInteraction);
     };
@@ -120,19 +102,44 @@ export function HeroVideo({ label }: { label: string }) {
 
   return (
     <div className="relative h-full w-full">
+      <picture
+        className="absolute inset-0 block h-full w-full"
+      >
+        <source media="(max-width: 767px)" srcSet={mobilePosterSource} />
+        {/* A native picture selects the correct poster before React hydrates. */}
+        <img
+          src={desktopPosterSource}
+          alt=""
+          className="h-full w-full object-cover object-center"
+          fetchPriority="high"
+        />
+      </picture>
       <video
         ref={videoRef}
-        className="h-full w-full object-cover object-center"
+        className={`relative h-full w-full object-cover object-center transition-opacity duration-200 ${
+          videoPlaying ? "opacity-100" : "opacity-0"
+        }`}
         autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
-        poster={desktopPosterSource}
+        preload="auto"
         aria-label={label}
         disablePictureInPicture
-      />
-      {playbackBlocked && !reducedMotionEnabled() ? (
+      >
+        <source
+          media="(max-width: 767px)"
+          src={mobileVideoSource}
+          type="video/mp4"
+        />
+        <source
+          media="(min-width: 768px)"
+          src={desktopVideoSource}
+          type="video/mp4"
+        />
+        <source src={desktopVideoSource} type="video/mp4" />
+      </video>
+      {playbackBlocked ? (
         <button
           type="button"
           onClick={() => {
@@ -153,12 +160,5 @@ export function HeroVideo({ label }: { label: string }) {
         </button>
       ) : null}
     </div>
-  );
-}
-
-function reducedMotionEnabled() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 }
