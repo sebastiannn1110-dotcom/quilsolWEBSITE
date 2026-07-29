@@ -1,7 +1,4 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export function AnimatedWrapper({
   children,
@@ -12,17 +9,13 @@ export function AnimatedWrapper({
   className?: string;
   delay?: number;
 }) {
-  const reduceMotion = useReducedMotion();
+  const style: CSSProperties | undefined = delay
+    ? { animationDelay: `${delay}s` }
+    : undefined;
 
   return (
-    <motion.div
-      className={className}
-      initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-      whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.55, ease: "easeOut", delay }}
-    >
+    <div className={`reveal-on-load ${className || ""}`} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }

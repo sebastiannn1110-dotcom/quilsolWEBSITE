@@ -5,7 +5,6 @@ import { Menu, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { CartIconLink } from "@/components/cart/CartIconLink";
-import { getCommerceCopy } from "@/lib/commerce-copy";
 import { navItems, type Locale } from "@/lib/constants";
 import { localizedPath, type Dictionary } from "@/lib/dictionary";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -13,15 +12,23 @@ import { Logo } from "./Logo";
 
 export function Header({
   locale,
-  dict,
+  nav,
+  skipLabel,
+  brandLabel,
+  languageLabel,
+  mobileLanguageLabel,
+  cartLabel,
 }: {
   locale: Locale;
-  dict: Dictionary;
+  nav: Dictionary["common"]["nav"];
+  skipLabel: string;
+  brandLabel: string;
+  languageLabel: string;
+  mobileLanguageLabel: string;
+  cartLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const nav = dict.common.nav;
-  const cartCopy = getCommerceCopy(locale).cart;
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#071314]/95 backdrop-blur-xl">
@@ -29,10 +36,10 @@ export function Header({
         href="#main"
         className="focus-ring sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2"
       >
-        {dict.common.skip}
+        {skipLabel}
       </a>
       <div className="container-page flex min-h-20 items-center justify-between gap-4">
-        <Logo href={localizedPath(locale, "/")} label={dict.common.brand} />
+        <Logo href={localizedPath(locale, "/")} label={brandLabel} />
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
           {navItems.map((item) => {
@@ -61,7 +68,7 @@ export function Header({
         <div className="hidden items-center gap-3 lg:flex">
           <LanguageSwitcher
             currentLocale={locale}
-            label={dict.common.language.label}
+            label={languageLabel}
           />
           <Link
             href={localizedPath(locale, "/portal")}
@@ -72,7 +79,7 @@ export function Header({
           </Link>
           <CartIconLink
             href={localizedPath(locale, "/cart")}
-            label={cartCopy.label}
+            label={cartLabel}
           />
           <Link
             href={localizedPath(locale, "/rfq")}
@@ -85,11 +92,11 @@ export function Header({
         <div className="flex items-center gap-2 lg:hidden">
           <LanguageSwitcher
             currentLocale={locale}
-            label={dict.common.language.mobileLabel}
+            label={mobileLanguageLabel}
           />
           <CartIconLink
             href={localizedPath(locale, "/cart")}
-            label={cartCopy.label}
+            label={cartLabel}
           />
           <button
             type="button"

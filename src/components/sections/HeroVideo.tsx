@@ -2,14 +2,31 @@
 
 import { Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { Locale } from "@/lib/constants";
 
-const mediaVersion = "20260729-responsive-video";
+const mediaVersion = "20260729-performance-audit";
 const mobileVideoSource = `/videos/quicksol-home-hero-mobile.mp4?v=${mediaVersion}`;
 const desktopVideoSource = `/videos/quicksol-home-hero.mp4?v=${mediaVersion}`;
 const mobilePosterSource = `/videos/quicksol-home-hero-mobile-poster.webp?v=${mediaVersion}`;
 const desktopPosterSource = `/videos/quicksol-home-hero-poster.webp?v=${mediaVersion}`;
 
-export function HeroVideo({ label }: { label: string }) {
+const playLabels: Record<Locale, string> = {
+  en: "Play video",
+  es: "Reproducir video",
+  zh: "播放视频",
+  fr: "Lire la vidéo",
+  de: "Video abspielen",
+  ja: "動画を再生",
+  ko: "동영상 재생",
+};
+
+export function HeroVideo({
+  label,
+  locale,
+}: {
+  label: string;
+  locale: Locale;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [playbackBlocked, setPlaybackBlocked] = useState(false);
@@ -123,7 +140,7 @@ export function HeroVideo({ label }: { label: string }) {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-label={label}
         disablePictureInPicture
       >
@@ -156,7 +173,7 @@ export function HeroVideo({ label }: { label: string }) {
           className="focus-ring absolute bottom-5 right-5 z-20 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/35 bg-slate-950/80 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur"
         >
           <Play aria-hidden="true" className="h-4 w-4 fill-current" />
-          Play video
+          {playLabels[locale]}
         </button>
       ) : null}
     </div>

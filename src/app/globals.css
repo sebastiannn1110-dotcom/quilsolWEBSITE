@@ -76,48 +76,40 @@ textarea {
   background-size: 42px 42px;
 }
 
-.ai-shop-button {
-  animation: ai-shop-pulse 3.4s ease-in-out infinite;
+.reveal-on-load {
+  animation: reveal-on-load 0.42s ease-out both;
 }
 
-.ai-shop-sparkle {
-  animation: ai-shop-sparkle 3.4s ease-in-out infinite;
+.route-loading-bar {
+  position: fixed;
+  inset: 80px 0 auto;
+  z-index: 60;
+  height: 3px;
+  transform-origin: left;
+  background: linear-gradient(90deg, #d96022, #ffb36f);
+  animation: route-loading-progress 1s ease-in-out infinite;
 }
 
-.ai-shop-sparkle-delayed {
-  animation-delay: 0.45s;
-}
-
-.ai-shop-button:hover {
-  animation: none;
-  transform: translateY(-2px) scale(1.01);
-}
-
-@keyframes ai-shop-pulse {
-  0%,
-  74%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+@keyframes reveal-on-load {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
-  14% {
-    transform: scale(1.02);
-    box-shadow:
-      0 22px 54px rgba(15, 23, 42, 0.24),
-      0 0 0 8px rgba(217, 96, 34, 0.08);
-  }
-}
-
-@keyframes ai-shop-sparkle {
-  0%,
-  70%,
-  100% {
-    opacity: 0.58;
-    transform: scale(0.92);
-  }
-  18% {
+  to {
     opacity: 1;
-    transform: scale(1.08);
+    transform: translateY(0);
+  }
+}
+
+@keyframes route-loading-progress {
+  0% {
+    transform: scaleX(0);
+  }
+  55% {
+    transform: scaleX(0.75);
+  }
+  100% {
+    transform: scaleX(1);
   }
 }
 
@@ -131,8 +123,8 @@ textarea {
     transition-duration: 0.001ms !important;
   }
 
-  .ai-shop-button,
-  .ai-shop-sparkle {
+  .reveal-on-load,
+  .route-loading-bar {
     animation: none !important;
   }
 }

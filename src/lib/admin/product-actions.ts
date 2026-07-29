@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createCheckedAdminClient } from "./access";
@@ -234,6 +234,8 @@ async function savePrimaryProductImage(
 
 function revalidateProductPublicPaths(slugs: Array<string | null | undefined>) {
   const uniqueSlugs = [...new Set(slugs.filter(Boolean))] as string[];
+
+  updateTag("public-catalog");
 
   for (const item of locales) {
     revalidatePath(`/${item}/catalog`);

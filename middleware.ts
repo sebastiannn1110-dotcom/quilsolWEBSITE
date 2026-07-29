@@ -5,6 +5,19 @@ import { routing } from "./src/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
+function requiresSessionRefresh(pathname: string) {
+  const segments = pathname.split("/").filter(Boolean);
+  const area = segments[1];
+
+  return area === "admin" || area === "portal";
+}
+
+function hasSupabaseSessionCookie(request: NextRequest) {
+  return request.cookies
+    .getAll()
+    .some(({ name }) => name.startsWith("sb-") && name.includes("-auth-token"));
+}
+
 function publicRequestOrigin(request: NextRequest) {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProtocol = request.headers.get("x-forwarded-proto");
@@ -37,6 +50,16 @@ export default async function middleware(request: NextRequest) {
   }
 
   const response = intlMiddleware(request);
+
+  // Public pages never read the session. Avoid an external Supabase round trip
+  // before rendering every catalog, product and marketing navigation.
+  if (
+    !requiresSessionRefresh(request.nextUrl.pathname) ||
+    !hasSupabaseSessionCookie(request)
+  ) {
+    return response;
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publicKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||

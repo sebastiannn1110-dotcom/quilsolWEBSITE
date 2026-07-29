@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { getCommerceCopy } from "@/lib/commerce-copy";
 import { locales, type Locale } from "@/lib/constants";
 import { getDictionary, isLocale } from "@/lib/dictionary";
 import "../globals.css";
@@ -41,7 +41,7 @@ export default async function LocaleLayout({
 
   const locale = rawLocale as Locale;
   const dict = getDictionary(locale);
-  const messages = (await import(`../../messages/${locale}.json`)).default;
+  const cartLabel = getCommerceCopy(locale).cart.label;
 
   return (
     <html
@@ -49,13 +49,19 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Header locale={locale} dict={dict} />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer locale={locale} dict={dict} />
-        </NextIntlClientProvider>
+        <Header
+          locale={locale}
+          nav={dict.common.nav}
+          skipLabel={dict.common.skip}
+          brandLabel={dict.common.brand}
+          languageLabel={dict.common.language.label}
+          mobileLanguageLabel={dict.common.language.mobileLabel}
+          cartLabel={cartLabel}
+        />
+        <main id="main" className="flex-1">
+          {children}
+        </main>
+        <Footer locale={locale} dict={dict} />
       </body>
     </html>
   );

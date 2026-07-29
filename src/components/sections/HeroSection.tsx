@@ -18,7 +18,7 @@ export function HeroSection({
   return (
     <section className="relative overflow-hidden bg-[#071314] text-white">
       <div className="absolute inset-0">
-        <HeroVideo label={dict.home.hero.imageAlt} />
+        <HeroVideo label={dict.home.hero.imageAlt} locale={locale} />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,#071314_0%,rgba(7,19,20,0.9)_36%,rgba(6,47,51,0.34)_100%)]" />
         <div className="absolute inset-0 bg-slate-950/20" />
         <div className="absolute inset-x-0 bottom-0 h-1 bg-orange-600" />
