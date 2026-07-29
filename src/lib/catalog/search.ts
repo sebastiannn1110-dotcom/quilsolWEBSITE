@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   getBundledCatalogFacets,
   getBundledCatalogProductBySlug,
+  getBundledCatalogProductBySku,
   searchBundledCatalogProducts,
 } from "./local";
 import type { CatalogFilters, CatalogProduct, CatalogResult } from "./types";
@@ -24,9 +25,20 @@ export function normalizePartReference(value: string) {
 function catalogProductFromData(data: unknown) {
   const product = data as CatalogProduct;
   const sourceUrl = product.specifications?.source_url;
+  const bundledProduct = getBundledCatalogProductBySku(product.sku);
 
   return {
     ...product,
+    primary_image_url:
+      product.primary_image_url || bundledProduct?.primary_image_url || null,
+    primary_image_alt:
+      product.primary_image_alt ||
+      bundledProduct?.primary_image_alt ||
+      `${product.brand_name || product.manufacturer_name || ""} ${product.mpn}`.trim(),
+    specifications: {
+      ...(bundledProduct?.specifications || {}),
+      ...(product.specifications || {}),
+    },
     source_url:
       product.source_url ||
       (typeof sourceUrl === "string" ? sourceUrl : undefined),

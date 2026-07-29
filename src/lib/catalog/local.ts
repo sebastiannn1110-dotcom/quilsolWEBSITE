@@ -8,6 +8,7 @@ import type {
 export const bundledCatalogPageSize = 24;
 
 const products = catalogSnapshot.products as CatalogProduct[];
+const productsBySku = new Map(products.map((product) => [product.sku, product]));
 
 function catalogCardProduct(product: CatalogProduct): CatalogProduct {
   return {
@@ -90,6 +91,10 @@ export function searchBundledCatalogProducts(
 
 export function getBundledCatalogProductBySlug(slug: string) {
   return products.find((product) => product.slug === slug) || null;
+}
+
+export function getBundledCatalogProductBySku(sku: string) {
+  return productsBySku.get(sku) || null;
 }
 
 export function getBundledCatalogFacets() {

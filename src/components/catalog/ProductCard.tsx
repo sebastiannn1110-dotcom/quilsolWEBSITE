@@ -31,16 +31,25 @@ export function ProductCard({
   locale: Locale;
 }) {
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+    <article className="group flex h-full flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[4/3] bg-slate-100">
         {product.primary_image_url ? (
-          <Image
-            src={product.primary_image_url}
-            alt={product.primary_image_alt || product.title}
-            fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover"
-          />
+          <>
+            <Image
+              src={product.primary_image_url}
+              alt={product.primary_image_alt || product.title}
+              fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+              className="object-contain p-5 transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+            {product.specifications?.image_is_representative === true ? (
+              <span className="absolute bottom-3 left-3 rounded bg-slate-950/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                {locale === "es"
+                  ? "Foto real de referencia"
+                  : "Real reference photo"}
+              </span>
+            ) : null}
+          </>
         ) : (
           <ProductVisual
             mpn={product.mpn}

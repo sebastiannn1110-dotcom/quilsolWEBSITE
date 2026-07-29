@@ -129,13 +129,22 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="space-y-5">
             <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-slate-100">
               {product.primary_image_url ? (
-                <Image
-                  src={product.primary_image_url}
-                  alt={product.primary_image_alt || product.title}
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
-                />
+                <>
+                  <Image
+                    src={product.primary_image_url}
+                    alt={product.primary_image_alt || product.title}
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-contain p-8"
+                  />
+                  {product.specifications?.image_is_representative === true ? (
+                    <span className="absolute bottom-4 left-4 rounded bg-slate-950/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white">
+                      {locale === "es"
+                        ? "Foto real de referencia del encapsulado"
+                        : "Real package reference photo"}
+                    </span>
+                  ) : null}
+                </>
               ) : (
                 <ProductVisual
                   mpn={product.mpn}
