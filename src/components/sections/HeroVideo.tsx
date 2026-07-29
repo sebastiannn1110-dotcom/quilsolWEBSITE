@@ -3,8 +3,11 @@
 import { Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const mobileVideoSource = "/videos/quicksol-home-hero-mobile.mp4";
-const desktopVideoSource = "/videos/quicksol-home-hero.mp4";
+const mediaVersion = "20260729-responsive-video";
+const mobileVideoSource = `/videos/quicksol-home-hero-mobile.mp4?v=${mediaVersion}`;
+const desktopVideoSource = `/videos/quicksol-home-hero.mp4?v=${mediaVersion}`;
+const mobilePosterSource = `/videos/quicksol-home-hero-mobile-poster.webp?v=${mediaVersion}`;
+const desktopPosterSource = `/videos/quicksol-home-hero-poster.webp?v=${mediaVersion}`;
 
 type LegacyMediaQueryList = MediaQueryList & {
   addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
@@ -43,10 +46,13 @@ export function HeroVideo({ label }: { label: string }) {
     };
 
     const loadVideoSource = () => {
-      const nextSource =
-        mobileViewport.matches && !usingFallback
-          ? mobileVideoSource
-          : desktopVideoSource;
+      const useMobileVideo = mobileViewport.matches && !usingFallback;
+      const nextSource = useMobileVideo
+        ? mobileVideoSource
+        : desktopVideoSource;
+      const nextPoster = useMobileVideo
+        ? mobilePosterSource
+        : desktopPosterSource;
 
       if (activeSource === nextSource) {
         void playVideo();
@@ -55,6 +61,7 @@ export function HeroVideo({ label }: { label: string }) {
 
       activeSource = nextSource;
       video.pause();
+      video.poster = nextPoster;
       video.src = nextSource;
       video.load();
     };
@@ -121,7 +128,7 @@ export function HeroVideo({ label }: { label: string }) {
         loop
         playsInline
         preload="metadata"
-        poster="/videos/quicksol-home-hero-poster.webp"
+        poster={desktopPosterSource}
         aria-label={label}
         disablePictureInPicture
       />
