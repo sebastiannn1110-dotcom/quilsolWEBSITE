@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { BarChart3, Heart, ShoppingCart } from "lucide-react";
 import type { Locale } from "@/lib/constants";
+import { catalogImageSrc } from "@/lib/catalog/image";
 import { localizedPath } from "@/lib/dictionary";
 import type { CatalogProduct } from "@/lib/catalog/types";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -26,9 +27,11 @@ function priceLabel(product: CatalogProduct, locale: Locale) {
 export function ProductCard({
   product,
   locale,
+  priority = false,
 }: {
   product: CatalogProduct;
   locale: Locale;
+  priority?: boolean;
 }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
@@ -36,9 +39,14 @@ export function ProductCard({
         {product.primary_image_url ? (
           <>
             <Image
-              src={product.primary_image_url}
+              src={catalogImageSrc(product.primary_image_url, {
+                thumbnail: true,
+              })}
               alt={product.primary_image_alt || product.title}
               fill
+              unoptimized
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
               className="object-contain p-5 transition-transform duration-300 group-hover:scale-[1.03]"
             />

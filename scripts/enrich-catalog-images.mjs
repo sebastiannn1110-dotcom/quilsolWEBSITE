@@ -6,6 +6,7 @@ import sharp from "sharp";
 
 const catalogFile = resolve(process.cwd(), "src/data/catalog-products.json");
 const imageDirectory = resolve(process.cwd(), "public/images/catalog");
+const thumbnailDirectory = resolve(imageDirectory, "thumbnails");
 const catalog = JSON.parse(await readFile(catalogFile, "utf8"));
 const products = catalog.products;
 const concurrency = Math.max(
@@ -19,6 +20,7 @@ if (!Array.isArray(products) || products.length !== 500) {
 }
 
 await mkdir(imageDirectory, { recursive: true });
+await mkdir(thumbnailDirectory, { recursive: true });
 
 let cursor = 0;
 let completed = 0;
@@ -127,8 +129,32 @@ for (const product of missingProducts) {
 
 await writeFile(catalogFile, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
 
+const uniqueImagePaths = [
+  ...new Set(
+    products
+      .map((product) => product.primary_image_url)
+      .filter((value) => value?.startsWith("/images/catalog/")),
+  ),
+];
+
+for (const publicPath of uniqueImagePaths) {
+  const filename = publicPath.split("/").at(-1);
+
+  if (!filename) {
+    continue;
+  }
+
+  await sharp(resolve(process.cwd(), "public", publicPath.slice(1)))
+    .resize(480, 480, {
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 76, effort: 4 })
+    .toFile(resolve(thumbnailDirectory, filename));
+}
+
 console.log(
-  `Saved ${downloaded} optimized WebP photos and assigned ${missingProducts.length} transparent package references.`,
+  `Saved ${downloaded} optimized WebP photos, ${uniqueImagePaths.length} thumbnails, and assigned ${missingProducts.length} transparent package references.`,
 );
 
 async function fetchText(url) {

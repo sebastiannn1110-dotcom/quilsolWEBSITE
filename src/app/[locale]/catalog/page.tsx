@@ -116,11 +116,12 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
           ) : result.products.length ? (
             <>
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {result.products.map((product) => (
+                {result.products.map((product, index) => (
                   <ProductCard
                     key={product.id}
                     product={product}
                     locale={locale}
+                    priority={index < 3}
                   />
                 ))}
               </div>

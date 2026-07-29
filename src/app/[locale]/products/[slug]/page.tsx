@@ -7,6 +7,7 @@ import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { PageHero } from "@/components/sections/PageHero";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { locales, type Locale } from "@/lib/constants";
+import { catalogImageSrc } from "@/lib/catalog/image";
 import { getCatalogProductBySlug } from "@/lib/catalog/search";
 import { isLocale, localizedPath } from "@/lib/dictionary";
 import { createPageMetadata } from "@/lib/seo";
@@ -131,9 +132,12 @@ export default async function ProductPage({ params }: PageProps) {
               {product.primary_image_url ? (
                 <>
                   <Image
-                    src={product.primary_image_url}
+                    src={catalogImageSrc(product.primary_image_url)}
                     alt={product.primary_image_alt || product.title}
                     fill
+                    unoptimized
+                    loading="eager"
+                    fetchPriority="high"
                     sizes="(min-width: 1024px) 50vw, 100vw"
                     className="object-contain p-8"
                   />

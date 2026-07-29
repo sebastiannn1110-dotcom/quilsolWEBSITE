@@ -45,6 +45,21 @@ function catalogProductFromData(data: unknown) {
   };
 }
 
+function catalogCardProductFromData(data: unknown) {
+  const product = catalogProductFromData(data);
+  const isRepresentative =
+    product.specifications?.image_is_representative === true;
+
+  return {
+    ...product,
+    description: undefined,
+    source_url: undefined,
+    specifications: isRepresentative
+      ? { image_is_representative: true }
+      : null,
+  };
+}
+
 export async function searchCatalogProducts(
   filters: CatalogFilters,
 ): Promise<CatalogResult> {
@@ -123,7 +138,7 @@ export async function searchCatalogProducts(
   }
 
   return {
-    products: (data || []).map(catalogProductFromData),
+    products: (data || []).map(catalogCardProductFromData),
     count: count || 0,
     page,
     pageSize,

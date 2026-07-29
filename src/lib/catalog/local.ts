@@ -11,11 +11,16 @@ const products = catalogSnapshot.products as CatalogProduct[];
 const productsBySku = new Map(products.map((product) => [product.sku, product]));
 
 function catalogCardProduct(product: CatalogProduct): CatalogProduct {
+  const isRepresentative =
+    product.specifications?.image_is_representative === true;
+
   return {
     ...product,
     description: undefined,
     source_url: undefined,
-    specifications: null,
+    specifications: isRepresentative
+      ? { image_is_representative: true }
+      : null,
   };
 }
 
