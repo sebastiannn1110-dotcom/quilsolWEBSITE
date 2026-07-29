@@ -27,6 +27,7 @@
     "cta": {
       "rfq": "Solicitar cotización",
       "services": "Explorar servicios",
+      "products": "Productos",
       "contact": "Contactar ventas",
       "globalTeam": "Contactar equipo global",
       "submitRfq": "Enviar RFQ",

@@ -59,7 +59,6 @@ export function Header({
           <LanguageSwitcher
             currentLocale={locale}
             label={dict.common.language.label}
-            compact
           />
           <Link
             href={localizedPath(locale, "/portal")}
@@ -83,15 +82,21 @@ export function Header({
           </Link>
         </div>
 
-        <button
-          type="button"
-          className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 bg-white/8 text-white lg:hidden"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          aria-label={open ? "Close menu" : "Open menu"}
-        >
-          {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <LanguageSwitcher
+            currentLocale={locale}
+            label={dict.common.language.mobileLabel}
+          />
+          <button
+            type="button"
+            className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 bg-white/8 text-white"
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+          >
+            {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+        </div>
       </div>
 
       {open ? (
@@ -128,12 +133,6 @@ export function Header({
             >
               Cart
             </Link>
-            <div className="py-2">
-              <LanguageSwitcher
-                currentLocale={locale}
-                label={dict.common.language.mobileLabel}
-              />
-            </div>
           </nav>
         </div>
       ) : null}

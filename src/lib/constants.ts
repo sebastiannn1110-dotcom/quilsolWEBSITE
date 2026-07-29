@@ -14,6 +14,16 @@ export const localeNames: Record<Locale, string> = {
   ko: "한국어",
 };
 
+export const localeFlags: Record<Locale, string> = {
+  en: "/flags/us.svg",
+  es: "/flags/es.svg",
+  zh: "/flags/cn.svg",
+  fr: "/flags/fr.svg",
+  de: "/flags/de.svg",
+  ja: "/flags/jp.svg",
+  ko: "/flags/kr.svg",
+};
+
 export const navItems = [
   { key: "home", href: "/" },
   { key: "brands", href: "/catalog" },

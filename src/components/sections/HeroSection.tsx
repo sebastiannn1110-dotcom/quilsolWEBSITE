@@ -1,4 +1,4 @@
-import { ArrowRight, ExternalLink, Link2, MessageSquareText, Search } from "lucide-react";
+import { ArrowRight, Boxes, ExternalLink, Link2, MessageSquareText } from "lucide-react";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import type { Locale } from "@/lib/constants";
 import { localizedPath, type Dictionary } from "@/lib/dictionary";
@@ -46,11 +46,11 @@ export function HeroSection({
                 {dict.common.cta.rfq}
               </ButtonLink>
               <ButtonLink
-                href={localizedPath(locale, "/services")}
+                href={localizedPath(locale, "/catalog")}
                 variant="dark"
-                icon={<Search aria-hidden="true" className="h-4 w-4" />}
+                icon={<Boxes aria-hidden="true" className="h-4 w-4" />}
               >
-                {dict.common.cta.services}
+                {dict.common.cta.products}
               </ButtonLink>
               <ButtonLink
                 href={localizedPath(locale, "/contact")}
