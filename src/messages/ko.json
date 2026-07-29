@@ -34,8 +34,7 @@
       "learnMore": "자세히 보기",
       "submit": "제출",
       "sending": "전송 중...",
-      "uploading": "요청 업로드 중...",
-      "shopWithAi": "AI로 구매"
+      "uploading": "요청 업로드 중..."
     },
     "language": {
       "label": "언어",
@@ -121,7 +120,7 @@
     },
     "portal": {
       "title": "고객 포털 | Quicksol Global",
-      "description": "향후 BOM 업로드, RFQ 추적, 재고 검색 및 AI 지원을 위한 고객 포털."
+      "description": "향후 BOM 업로드, RFQ 추적, 재고 검색 및 저장된 장바구니를 위한 고객 포털."
     },
     "terms": {
       "title": "이용 약관 | Quicksol Global",
@@ -602,7 +601,7 @@
         "BOM 업로드",
         "재고 검색",
         "RFQ 추적",
-        "AI 어시스턴트",
+        "저장된 장바구니",
         "주문 추적",
         "문서 센터",
         "팀 협업"

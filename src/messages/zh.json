@@ -34,8 +34,7 @@
       "learnMore": "了解更多",
       "submit": "提交",
       "sending": "发送中...",
-      "uploading": "正在上传请求...",
-      "shopWithAi": "用 AI 采购"
+      "uploading": "正在上传请求..."
     },
     "language": {
       "label": "语言",
@@ -121,7 +120,7 @@
     },
     "portal": {
       "title": "客户门户 | Quicksol Global",
-      "description": "为未来 BOM 上传、RFQ 跟踪、库存搜索和 AI 助手准备的客户门户。"
+      "description": "为未来 BOM 上传、RFQ 跟踪、库存搜索和已保存购物车准备的客户门户。"
     },
     "terms": {
       "title": "条款与条件 | Quicksol Global",
@@ -602,7 +601,7 @@
         "上传 BOM",
         "库存搜索",
         "RFQ 跟踪",
-        "AI 助手",
+        "已保存购物车",
         "订单跟踪",
         "文档中心",
         "团队协作"

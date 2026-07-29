@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, ShoppingCart, UserRound, X } from "lucide-react";
+import { Menu, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { CartIconLink } from "@/components/cart/CartIconLink";
+import { getCommerceCopy } from "@/lib/commerce-copy";
 import { navItems, type Locale } from "@/lib/constants";
 import { localizedPath, type Dictionary } from "@/lib/dictionary";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -19,6 +21,7 @@ export function Header({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const nav = dict.common.nav;
+  const cartCopy = getCommerceCopy(locale).cart;
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#071314]/95 backdrop-blur-xl">
@@ -67,13 +70,10 @@ export function Header({
           >
             <UserRound aria-hidden="true" size={18} />
           </Link>
-          <Link
+          <CartIconLink
             href={localizedPath(locale, "/cart")}
-            className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 bg-white/8 text-white transition hover:bg-white/12"
-            aria-label="Cart"
-          >
-            <ShoppingCart aria-hidden="true" size={18} />
-          </Link>
+            label={cartCopy.label}
+          />
           <Link
             href={localizedPath(locale, "/rfq")}
             className="focus-ring rounded-md bg-orange-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-500"
@@ -86,6 +86,10 @@ export function Header({
           <LanguageSwitcher
             currentLocale={locale}
             label={dict.common.language.mobileLabel}
+          />
+          <CartIconLink
+            href={localizedPath(locale, "/cart")}
+            label={cartCopy.label}
           />
           <button
             type="button"
@@ -125,13 +129,6 @@ export function Header({
               className="focus-ring rounded-md px-3 py-3 text-base font-semibold text-stone-100 hover:bg-white/8"
             >
               {nav.portal}
-            </Link>
-            <Link
-              href={localizedPath(locale, "/cart")}
-              onClick={() => setOpen(false)}
-              className="focus-ring rounded-md px-3 py-3 text-base font-semibold text-stone-100 hover:bg-white/8"
-            >
-              Cart
             </Link>
           </nav>
         </div>

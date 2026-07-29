@@ -34,8 +34,7 @@
       "learnMore": "詳しく見る",
       "submit": "送信",
       "sending": "送信中...",
-      "uploading": "依頼をアップロード中...",
-      "shopWithAi": "AIで購入"
+      "uploading": "依頼をアップロード中..."
     },
     "language": {
       "label": "言語",
@@ -121,7 +120,7 @@
     },
     "portal": {
       "title": "顧客ポータル | Quicksol Global",
-      "description": "将来のBOMアップロード、RFQ追跡、在庫検索、AIアシスタントに備えた顧客ポータル。"
+      "description": "将来のBOMアップロード、RFQ追跡、在庫検索、保存済みカートに備えた顧客ポータル。"
     },
     "terms": {
       "title": "利用規約 | Quicksol Global",
@@ -602,7 +601,7 @@
         "BOMアップロード",
         "在庫検索",
         "RFQ追跡",
-        "AIアシスタント",
+        "保存済みカート",
         "注文追跡",
         "文書センター",
         "チーム連携"

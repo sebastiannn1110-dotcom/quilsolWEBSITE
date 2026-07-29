@@ -1,4 +1,6 @@
 import { FeatureShell } from "@/components/dashboard/FeatureShell";
+import type { Locale } from "@/lib/constants";
+import { getDictionary, isLocale } from "@/lib/dictionary";
 
 export const metadata = {
   robots: {
@@ -7,11 +9,22 @@ export const metadata = {
   },
 };
 
-export default function FavoritesPage() {
+export default async function FavoritesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale = (isLocale(rawLocale) ? rawLocale : "en") as Locale;
+  const copy = getDictionary(locale).pages.portal;
+
   return (
     <FeatureShell
-      title="Favorites"
-      body="Authenticated customers can save published products and revisit them for RFQ or comparison."
+      eyebrow={copy.hero.eyebrow}
+      title={copy.features[4]}
+      body={copy.hero.body}
+      emptyTitle={copy.features[4]}
+      emptyBody={copy.notice}
     />
   );
 }

@@ -1,4 +1,6 @@
 import { FeatureShell } from "@/components/dashboard/FeatureShell";
+import type { Locale } from "@/lib/constants";
+import { getDictionary, isLocale } from "@/lib/dictionary";
 
 export const metadata = {
   robots: {
@@ -7,11 +9,22 @@ export const metadata = {
   },
 };
 
-export default function OrdersPage() {
+export default async function OrdersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale = (isLocale(rawLocale) ? rawLocale : "en") as Locale;
+  const copy = getDictionary(locale).pages.portal;
+
   return (
     <FeatureShell
-      title="Orders"
-      body="Order tables are prepared for future checkout, but CHECKOUT_MODE remains rfq until payment approval and credentials exist."
+      eyebrow={copy.hero.eyebrow}
+      title={copy.features[5]}
+      body={copy.hero.body}
+      emptyTitle={copy.features[5]}
+      emptyBody={copy.notice}
     />
   );
 }

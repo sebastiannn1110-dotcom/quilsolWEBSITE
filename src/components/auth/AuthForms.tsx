@@ -21,6 +21,13 @@ const labels = {
     forgot: "Forgot password?",
     reset: "Update password",
     send: "Send reset email",
+    portal: "Quicksol portal",
+    loginBody: "Access your customer portal.",
+    registerBody: "Create your customer account securely.",
+    forgotTitle: "Reset password",
+    forgotBody: "Receive a secure link to update your password.",
+    resetTitle: "Update password",
+    resetBody: "Set a new password for your account.",
   },
   es: {
     email: "Correo",
@@ -34,6 +41,13 @@ const labels = {
     forgot: "¿Olvidaste tu contraseña?",
     reset: "Actualizar contraseña",
     send: "Enviar correo de recuperación",
+    portal: "Portal Quicksol",
+    loginBody: "Accede a tu portal de cliente.",
+    registerBody: "Crea tu cuenta de cliente de forma segura.",
+    forgotTitle: "Recuperar contraseña",
+    forgotBody: "Recibe un enlace seguro para actualizar tu contraseña.",
+    resetTitle: "Actualizar contraseña",
+    resetBody: "Define una nueva contraseña para tu cuenta.",
   },
   zh: {
     email: "邮箱",
@@ -47,6 +61,13 @@ const labels = {
     forgot: "忘记密码？",
     reset: "更新密码",
     send: "发送重置邮件",
+    portal: "Quicksol 客户门户",
+    loginBody: "访问您的客户门户。",
+    registerBody: "安全创建您的客户账户。",
+    forgotTitle: "重置密码",
+    forgotBody: "接收安全链接以更新密码。",
+    resetTitle: "更新密码",
+    resetBody: "为您的账户设置新密码。",
   },
   fr: {
     email: "E-mail",
@@ -60,6 +81,13 @@ const labels = {
     forgot: "Mot de passe oublié ?",
     reset: "Mettre à jour le mot de passe",
     send: "Envoyer l'e-mail",
+    portal: "Portail Quicksol",
+    loginBody: "Accédez à votre portail client.",
+    registerBody: "Créez votre compte client en toute sécurité.",
+    forgotTitle: "Réinitialiser le mot de passe",
+    forgotBody: "Recevez un lien sécurisé pour modifier votre mot de passe.",
+    resetTitle: "Mettre à jour le mot de passe",
+    resetBody: "Définissez un nouveau mot de passe pour votre compte.",
   },
   de: {
     email: "E-Mail",
@@ -73,6 +101,13 @@ const labels = {
     forgot: "Passwort vergessen?",
     reset: "Passwort aktualisieren",
     send: "E-Mail senden",
+    portal: "Quicksol-Portal",
+    loginBody: "Greifen Sie auf Ihr Kundenportal zu.",
+    registerBody: "Erstellen Sie sicher Ihr Kundenkonto.",
+    forgotTitle: "Passwort zurücksetzen",
+    forgotBody: "Erhalten Sie einen sicheren Link zum Ändern Ihres Passworts.",
+    resetTitle: "Passwort aktualisieren",
+    resetBody: "Legen Sie ein neues Passwort für Ihr Konto fest.",
   },
   ja: {
     email: "メール",
@@ -86,6 +121,13 @@ const labels = {
     forgot: "パスワードを忘れましたか？",
     reset: "パスワード更新",
     send: "再設定メールを送信",
+    portal: "Quicksol ポータル",
+    loginBody: "顧客ポータルにアクセスします。",
+    registerBody: "顧客アカウントを安全に作成します。",
+    forgotTitle: "パスワードをリセット",
+    forgotBody: "パスワード更新用の安全なリンクを受け取ります。",
+    resetTitle: "パスワードを更新",
+    resetBody: "アカウントの新しいパスワードを設定します。",
   },
   ko: {
     email: "이메일",
@@ -99,8 +141,19 @@ const labels = {
     forgot: "비밀번호를 잊으셨나요?",
     reset: "비밀번호 업데이트",
     send: "재설정 이메일 보내기",
+    portal: "Quicksol 포털",
+    loginBody: "고객 포털에 접속하세요.",
+    registerBody: "고객 계정을 안전하게 만드세요.",
+    forgotTitle: "비밀번호 재설정",
+    forgotBody: "비밀번호 변경을 위한 안전한 링크를 받으세요.",
+    resetTitle: "비밀번호 업데이트",
+    resetBody: "계정의 새 비밀번호를 설정하세요.",
   },
 } satisfies Record<Locale, Record<string, string>>;
+
+export function getAuthCopy(locale: Locale) {
+  return labels[locale];
+}
 
 function Field({
   label,

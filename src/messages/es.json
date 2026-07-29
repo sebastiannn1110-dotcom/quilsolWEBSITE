@@ -34,8 +34,7 @@
       "learnMore": "Ver más",
       "submit": "Enviar",
       "sending": "Enviando...",
-      "uploading": "Cargando solicitud...",
-      "shopWithAi": "Compra con IA"
+      "uploading": "Cargando solicitud..."
     },
     "language": {
       "label": "Idioma",
@@ -121,7 +120,7 @@
     },
     "portal": {
       "title": "Portal de clientes | Quicksol Global",
-      "description": "Experiencia preparada para futuras funciones de BOM, seguimiento RFQ, búsqueda de inventario y asistente IA."
+      "description": "Experiencia preparada para futuras funciones de BOM, seguimiento RFQ, búsqueda de inventario y carritos guardados."
     },
     "terms": {
       "title": "Términos y condiciones | Quicksol Global",
@@ -602,7 +601,7 @@
         "Carga de BOM",
         "Búsqueda de inventario",
         "Seguimiento RFQ",
-        "Asistente IA",
+        "Carritos guardados",
         "Seguimiento de pedidos",
         "Centro documental",
         "Colaboración de equipos"

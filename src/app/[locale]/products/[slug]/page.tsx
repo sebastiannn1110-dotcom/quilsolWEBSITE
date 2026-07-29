@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { FileText, Share2, ShoppingCart } from "lucide-react";
-import { StatusPanel } from "@/components/catalog/StatusPanel";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
+import { StatusPanel } from "@/components/catalog/StatusPanel";
 import { PageHero } from "@/components/sections/PageHero";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { locales, type Locale } from "@/lib/constants";
 import { catalogImageSrc } from "@/lib/catalog/image";
 import { getCatalogProductBySlug } from "@/lib/catalog/search";
+import { getCommerceCopy } from "@/lib/commerce-copy";
+import { locales, type Locale } from "@/lib/constants";
 import { isLocale, localizedPath } from "@/lib/dictionary";
 import { createPageMetadata } from "@/lib/seo";
 
@@ -20,12 +21,13 @@ function priceLabel(
   price: number | null,
   currency: string,
   locale: Locale,
+  quoteLabel: string,
 ) {
   if (price == null) {
-    return locale === "es" ? "Solicitar cotización" : "Request quote";
+    return quoteLabel;
   }
 
-  return new Intl.NumberFormat(locale === "es" ? "es-CO" : "en-US", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency || "USD",
     minimumFractionDigits: 2,
@@ -43,8 +45,8 @@ function specificationValue(value: unknown) {
           "qFrom" in item &&
           "price" in item
         ) {
-          const tier = item as { qFrom: unknown; qTo?: unknown; price: unknown };
-          return `${tier.qFrom}+ units: $${tier.price}`;
+          const tier = item as { qFrom: unknown; price: unknown };
+          return `${tier.qFrom}+: $${tier.price}`;
         }
 
         return String(item);
@@ -55,6 +57,23 @@ function specificationValue(value: unknown) {
   return String(value);
 }
 
+function translatedCatalogValue(
+  value: string | null,
+  copy: ReturnType<typeof getCommerceCopy>["catalog"]["filters"],
+  fallback: string,
+) {
+  const labels: Record<string, string> = {
+    in_stock: copy.inStock,
+    limited: copy.limited,
+    quote: copy.quote,
+    new: copy.new,
+    refurbished: copy.refurbished,
+    surplus: copy.surplus,
+  };
+
+  return value ? labels[value.toLowerCase()] || value : fallback;
+}
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale, slug: "placeholder" }));
 }
@@ -63,22 +82,26 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : "en";
+  const locale = (isLocale(rawLocale) ? rawLocale : "en") as Locale;
+  const copy = getCommerceCopy(locale).product;
   const { product } = await getCatalogProductBySlug(slug, locale);
 
   return createPageMetadata({
     locale,
     path: `/products/${slug}`,
-    title: product ? `${product.title} | Quicksol Global` : "Product",
+    title: product ? `${product.title} | Quicksol Global` : copy.product,
     description:
-      product?.short_description ||
-      "Published Quicksol Global product detail page.",
+      locale === "en"
+        ? product?.short_description || copy.publishedProduct
+        : copy.publishedProduct,
   });
 }
 
 export default async function ProductPage({ params }: PageProps) {
   const { locale: rawLocale, slug } = await params;
   const locale = (isLocale(rawLocale) ? rawLocale : "en") as Locale;
+  const commerce = getCommerceCopy(locale);
+  const copy = commerce.product;
   const { product, configured, error } = await getCatalogProductBySlug(
     slug,
     locale,
@@ -89,8 +112,8 @@ export default async function ProductPage({ params }: PageProps) {
       <section className="section-y bg-slate-50">
         <div className="container-page">
           <StatusPanel
-            title="Supabase catalog is not configured"
-            body="Product detail pages read from Supabase when catalog credentials are configured."
+            title={copy.configuredTitle}
+            body={copy.configuredBody}
           />
         </div>
       </section>
@@ -101,7 +124,11 @@ export default async function ProductPage({ params }: PageProps) {
     return (
       <section className="section-y bg-slate-50">
         <div className="container-page">
-          <StatusPanel tone="error" title="Product could not be loaded" body={error} />
+          <StatusPanel
+            tone="error"
+            title={copy.errorTitle}
+            body={copy.configuredBody}
+          />
         </div>
       </section>
     );
@@ -118,12 +145,16 @@ export default async function ProductPage({ params }: PageProps) {
   return (
     <>
       <PageHero
-        eyebrow={product.brand_name || product.manufacturer_name || "Product"}
+        eyebrow={product.brand_name || product.manufacturer_name || copy.product}
         title={product.title}
-        body={product.short_description || "Published catalog product."}
+        body={
+          locale === "en"
+            ? product.short_description || copy.publishedProduct
+            : copy.publishedProduct
+        }
         locale={locale}
-        primaryLabel="Request quote"
-        secondaryLabel="Contact team"
+        primaryLabel={copy.requestQuote}
+        secondaryLabel={copy.contactTeam}
       />
       <section className="section-y bg-white">
         <div className="container-page grid gap-10 lg:grid-cols-[1fr_0.9fr]">
@@ -143,9 +174,7 @@ export default async function ProductPage({ params }: PageProps) {
                   />
                   {product.specifications?.image_is_representative === true ? (
                     <span className="absolute bottom-4 left-4 rounded bg-slate-950/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white">
-                      {locale === "es"
-                        ? "Foto real de referencia del encapsulado"
-                        : "Real package reference photo"}
+                      {copy.referencePhoto}
                     </span>
                   ) : null}
                 </>
@@ -158,14 +187,14 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
             <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
               <h2 className="text-xl font-semibold text-slate-950">
-                Technical specifications
+                {copy.technicalSpecifications}
               </h2>
               {specs.length ? (
                 <dl className="mt-4 grid gap-3 sm:grid-cols-2">
                   {specs.map(([key, item]) => (
                     <div key={key} className="rounded-md bg-white p-4">
                       <dt className="text-xs font-semibold uppercase text-slate-500">
-                        {key}
+                        {key.replaceAll("_", " ")}
                       </dt>
                       <dd className="mt-1 text-sm text-slate-800">
                         {specificationValue(item)}
@@ -175,23 +204,25 @@ export default async function ProductPage({ params }: PageProps) {
                 </dl>
               ) : (
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Specifications are not published yet. Request a quote for
-                  verified technical details.
+                  {copy.specificationsPending}
                 </p>
               )}
             </div>
           </div>
-          <aside className="space-y-5">
+          <aside>
             <div className="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
               <div className="mb-6 border-b border-slate-100 pb-5">
                 <p className="text-3xl font-semibold text-slate-950">
-                  {priceLabel(product.price, product.currency, locale)}
+                  {priceLabel(
+                    product.price,
+                    product.currency,
+                    locale,
+                    copy.priceByQuote,
+                  )}
                 </p>
                 {product.price_is_estimate ? (
                   <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {locale === "es"
-                      ? "Precio unitario estimado en USD. Confirma precio final, stock y envío mediante RFQ."
-                      : "Estimated USD unit price. Confirm final price, stock and freight by RFQ."}
+                    {copy.estimatedPriceBody}
                   </p>
                 ) : null}
               </div>
@@ -199,15 +230,29 @@ export default async function ProductPage({ params }: PageProps) {
                 {[
                   ["MPN", product.mpn],
                   ["SKU", product.sku],
-                  ["Stock", product.stock_status || "Verify"],
-                  ["MOQ", product.minimum_order_quantity || "RFQ"],
-                  ["Condition", product.condition || "Verify"],
-                  ["Packaging", product.packaging || "Verify"],
-                  ["Origin", product.country_of_origin || "Verify"],
                   [
-                    "Lead time",
+                    copy.stock,
+                    translatedCatalogValue(
+                      product.stock_status,
+                      commerce.catalog.filters,
+                      copy.verify,
+                    ),
+                  ],
+                  ["MOQ", product.minimum_order_quantity || "RFQ"],
+                  [
+                    copy.condition,
+                    translatedCatalogValue(
+                      product.condition,
+                      commerce.catalog.filters,
+                      copy.verify,
+                    ),
+                  ],
+                  [copy.packaging, product.packaging || copy.verify],
+                  [copy.origin, product.country_of_origin || copy.verify],
+                  [
+                    copy.leadTime,
                     product.lead_time_min_days && product.lead_time_max_days
-                      ? `${product.lead_time_min_days}-${product.lead_time_max_days} days`
+                      ? `${product.lead_time_min_days}-${product.lead_time_max_days} ${copy.days}`
                       : "RFQ",
                   ],
                 ].map(([label, item]) => (
@@ -222,36 +267,32 @@ export default async function ProductPage({ params }: PageProps) {
                   href={localizedPath(locale, `/cart?product=${product.slug}`)}
                   icon={<ShoppingCart aria-hidden="true" className="h-4 w-4" />}
                 >
-                  Add to cart draft
+                  {copy.addToCart}
                 </ButtonLink>
                 <ButtonLink
                   href={localizedPath(locale, `/rfq?product=${product.slug}`)}
                   variant="secondary"
                 >
-                  Request quote
+                  {copy.requestQuote}
                 </ButtonLink>
                 {product.datasheet_url ? (
                   <ButtonLink href={product.datasheet_url} variant="secondary">
                     <FileText aria-hidden="true" className="h-4 w-4" />
-                    Datasheet
+                    {copy.datasheet}
                   </ButtonLink>
                 ) : null}
                 {product.source_url ? (
                   <ButtonLink href={product.source_url} variant="secondary">
                     <FileText aria-hidden="true" className="h-4 w-4" />
-                    {locale === "es" ? "Ver fuente del producto" : "View product source"}
+                    {copy.viewSource}
                   </ButtonLink>
                 ) : null}
                 <ButtonLink href="#" variant="secondary">
                   <Share2 aria-hidden="true" className="h-4 w-4" />
-                  Share
+                  {copy.share}
                 </ButtonLink>
               </div>
             </div>
-            <StatusPanel
-              title="AI assistant is server-gated"
-              body="The assistant will use product tools only after OPENAI_API_KEY and catalog credentials are configured."
-            />
           </aside>
         </div>
       </section>

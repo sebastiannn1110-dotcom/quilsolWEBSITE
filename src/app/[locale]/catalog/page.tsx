@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { CatalogPagination } from "@/components/catalog/CatalogPagination";
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
+import { CatalogPagination } from "@/components/catalog/CatalogPagination";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { StatusPanel } from "@/components/catalog/StatusPanel";
-import { locales, type Locale } from "@/lib/constants";
 import { getCatalogFacets, searchCatalogProducts } from "@/lib/catalog/search";
-import { getDictionary, isLocale } from "@/lib/dictionary";
+import { getCommerceCopy } from "@/lib/commerce-copy";
+import { locales, type Locale } from "@/lib/constants";
+import { isLocale } from "@/lib/dictionary";
 import { createPageMetadata } from "@/lib/seo";
 
 type PageProps = {
@@ -13,7 +14,10 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function value(params: Record<string, string | string[] | undefined>, key: string) {
+function value(
+  params: Record<string, string | string[] | undefined>,
+  key: string,
+) {
   const item = params[key];
   return Array.isArray(item) ? item[0] : item;
 }
@@ -26,21 +30,21 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : "en";
+  const locale = (isLocale(rawLocale) ? rawLocale : "en") as Locale;
+  const copy = getCommerceCopy(locale).catalog;
 
   return createPageMetadata({
     locale,
     path: "/catalog",
-    title: "Quicksol Global Catalog",
-    description:
-      "Search published electronic components by MPN, SKU, brand, category and availability.",
+    title: copy.metaTitle,
+    description: copy.metaDescription,
   });
 }
 
 export default async function CatalogPage({ params, searchParams }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale = (isLocale(rawLocale) ? rawLocale : "en") as Locale;
-  const dict = getDictionary(locale);
+  const copy = getCommerceCopy(locale);
   const queryParams = await searchParams;
   const page = Number(value(queryParams, "page") || "1");
   const filters = {
@@ -68,23 +72,19 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
       <section className="border-b border-slate-200 bg-white py-8">
         <div className="container-page space-y-3">
           <p className="text-sm font-semibold uppercase tracking-wide text-orange-700">
-            {dict.common.nav.brands}
+            {copy.catalog.eyebrow}
           </p>
           <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <h1 className="text-3xl font-semibold text-slate-950 md:text-4xl">
-                {locale === "es"
-                  ? "Catálogo de componentes electrónicos"
-                  : "Electronic components catalog"}
+                {copy.catalog.title}
               </h1>
               <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
-                {locale === "es"
-                  ? "Explora 500 referencias reales de fabricantes líderes. Los precios unitarios son estimaciones de mercado y se confirman mediante cotización."
-                  : "Explore 500 real manufacturer references. Unit prices are market estimates and are confirmed by quotation."}
+                {copy.catalog.body}
               </p>
             </div>
             <p className="rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
-              {result.count} {locale === "es" ? "resultados" : "results"}
+              {result.count} {copy.catalog.results}
             </p>
           </div>
         </div>
@@ -100,28 +100,31 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
             sort={filters.sort}
             brands={facets.brands}
             categories={facets.categories}
+            copy={copy.catalog.filters}
           />
 
           {!result.configured ? (
             <StatusPanel
-              title="Supabase catalog is not configured"
-              body="Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Render to read published products. No demo products are shown in production."
+              title={copy.catalog.configuredTitle}
+              body={copy.catalog.configuredBody}
             />
           ) : result.error ? (
             <StatusPanel
               tone="error"
-              title="Catalog could not be loaded"
-              body="The catalog service is temporarily unavailable. Try again or send an RFQ with the exact manufacturer part number."
+              title={copy.catalog.errorTitle}
+              body={copy.catalog.errorBody}
             />
           ) : result.products.length ? (
             <>
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
                 {result.products.map((product, index) => (
                   <ProductCard
                     key={product.id}
                     product={product}
                     locale={locale}
-                    priority={index < 3}
+                    priority={index < 4}
+                    copy={copy.product}
+                    statusCopy={copy.catalog.filters}
                   />
                 ))}
               </div>
@@ -130,12 +133,13 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
                 currentPage={result.page}
                 totalPages={totalPages}
                 searchParams={queryParams}
+                copy={copy.catalog.pagination}
               />
             </>
           ) : (
             <StatusPanel
-              title="No published products match this search"
-              body="Try clearing filters or submit an RFQ for the exact manufacturer part number."
+              title={copy.catalog.emptyTitle}
+              body={copy.catalog.emptyBody}
             />
           )}
         </div>

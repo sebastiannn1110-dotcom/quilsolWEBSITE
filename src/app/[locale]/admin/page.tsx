@@ -10,7 +10,6 @@ import {
   Plus,
   Settings,
   ShoppingBag,
-  Sparkles,
   Tags,
   Users,
 } from "lucide-react";
@@ -59,9 +58,8 @@ export default async function AdminPage({ params }: PageProps) {
           countRows(supabase, "contact_requests", [{ column: "status", value: "new" }]),
           countRows(supabase, "profiles", [{ column: "role", value: "customer" }]),
           countRows(supabase, "orders"),
-          countRows(supabase, "products", [{ column: "embedding_status", value: "pending" }]),
         ])
-      : [0, 0, 0, 0, 0, 0, 0, 0, 0];
+      : [0, 0, 0, 0, 0, 0, 0, 0];
   const [
     products,
     published,
@@ -71,7 +69,6 @@ export default async function AdminPage({ params }: PageProps) {
     contacts,
     customers,
     orders,
-    aiPending,
   ] = counts;
   const cards = [
     { title: "Products", href: "/admin/products", body: `${published} published · ${draft} draft · ${archived} archived`, count: products, icon: Package },
@@ -83,7 +80,6 @@ export default async function AdminPage({ params }: PageProps) {
     { title: "Contact requests", href: "/admin/contacts", body: "Read contact submissions and notification state.", count: contacts, icon: MessageSquare },
     { title: "Customers", href: "/admin/customers", body: "Profiles, roles, status and activity.", count: customers, icon: Users },
     { title: "Orders", href: "/admin/orders", body: "RFQ-mode order records. Checkout remains quote-based.", count: orders, icon: ShoppingBag },
-    { title: "AI catalog", href: "/admin/ai-catalog", body: "Test exact product search and embedding readiness.", count: aiPending, icon: Sparkles },
     { title: "Settings", href: "/admin/settings", body: "Server-managed operational configuration.", icon: Settings },
   ];
 

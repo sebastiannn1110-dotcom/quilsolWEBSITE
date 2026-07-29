@@ -34,8 +34,7 @@
       "learnMore": "Mehr erfahren",
       "submit": "Senden",
       "sending": "Wird gesendet...",
-      "uploading": "Anfrage wird hochgeladen...",
-      "shopWithAi": "Mit KI kaufen"
+      "uploading": "Anfrage wird hochgeladen..."
     },
     "language": {
       "label": "Sprache",
@@ -121,7 +120,7 @@
     },
     "portal": {
       "title": "Kundenportal | Quicksol Global",
-      "description": "Vorbereitete Portal-Erfahrung für zukünftigen BOM-Upload, RFQ-Tracking, Inventarsuche und KI-Assistent."
+      "description": "Vorbereitete Portal-Erfahrung für zukünftigen BOM-Upload, RFQ-Tracking, Inventarsuche und gespeicherte Warenkörbe."
     },
     "terms": {
       "title": "Allgemeine Geschäftsbedingungen | Quicksol Global",
@@ -602,7 +601,7 @@
         "BOM hochladen",
         "Inventarsuche",
         "RFQ-Tracking",
-        "KI-Assistent",
+        "Gespeicherte Warenkörbe",
         "Auftragsverfolgung",
         "Dokumentencenter",
         "Teamzusammenarbeit"

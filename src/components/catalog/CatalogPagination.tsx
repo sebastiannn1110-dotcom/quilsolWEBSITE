@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CommerceCopy } from "@/lib/commerce-copy";
 import type { Locale } from "@/lib/constants";
 import { localizedPath } from "@/lib/dictionary";
 
@@ -21,11 +22,13 @@ export function CatalogPagination({
   currentPage,
   totalPages,
   searchParams,
+  copy,
 }: {
   locale: Locale;
   currentPage: number;
   totalPages: number;
   searchParams: SearchParams;
+  copy: CommerceCopy["catalog"]["pagination"];
 }) {
   if (totalPages <= 1) {
     return null;
@@ -54,7 +57,7 @@ export function CatalogPagination({
 
   return (
     <nav
-      aria-label="Catalog pagination"
+      aria-label={copy.label}
       className="flex flex-wrap items-center justify-center gap-2"
     >
       <Link
@@ -66,7 +69,7 @@ export function CatalogPagination({
             : "border-slate-200 bg-white text-slate-700"
         }`}
       >
-        Previous
+        {copy.previous}
       </Link>
       {pages.map((page, index) => {
         const previous = pages[index - 1];
@@ -98,7 +101,7 @@ export function CatalogPagination({
             : "border-slate-200 bg-white text-slate-700"
         }`}
       >
-        Next
+        {copy.next}
       </Link>
     </nav>
   );

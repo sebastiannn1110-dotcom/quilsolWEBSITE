@@ -34,8 +34,7 @@
       "learnMore": "Learn more",
       "submit": "Submit",
       "sending": "Sending...",
-      "uploading": "Uploading request...",
-      "shopWithAi": "Shop with AI"
+      "uploading": "Uploading request..."
     },
     "language": {
       "label": "Language",
@@ -121,7 +120,7 @@
     },
     "portal": {
       "title": "Customer Portal | Quicksol Global",
-      "description": "Prepared customer portal experience for future BOM upload, RFQ tracking, inventory search and AI assistance."
+      "description": "Prepared customer portal experience for future BOM upload, RFQ tracking, inventory search and saved carts."
     },
     "terms": {
       "title": "Terms and Conditions | Quicksol Global",
@@ -602,7 +601,7 @@
         "Upload BOM",
         "Inventory search",
         "RFQ tracking",
-        "AI assistant",
+        "Saved carts",
         "Order tracking",
         "Document center",
         "Team collaboration"
