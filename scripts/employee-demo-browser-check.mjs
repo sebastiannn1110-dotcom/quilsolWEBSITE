@@ -7,6 +7,7 @@ import WebSocket from "ws";
 
 const baseUrl = process.env.EMPLOYEE_DEMO_BASE_URL || "http://127.0.0.1:3111";
 const password = process.env.EMPLOYEE_DEMO_PASSWORD;
+const loginOnly = process.env.EMPLOYEE_DEMO_LOGIN_ONLY === "true";
 const browserCandidates = [
   process.env.BROWSER_PATH,
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
@@ -14,7 +15,7 @@ const browserCandidates = [
 ].filter(Boolean);
 const browserPath = browserCandidates.find((candidate) => existsSync(candidate));
 
-if (!password) {
+if (!password && !loginOnly) {
   throw new Error("EMPLOYEE_DEMO_PASSWORD is required.");
 }
 if (!browserPath) {
@@ -165,18 +166,75 @@ try {
     send("Network.enable"),
   ]);
   await send("Emulation.setDeviceMetricsOverride", {
-    width: 768,
-    height: 1024,
+    width: loginOnly ? 1440 : 768,
+    height: loginOnly ? 900 : 1024,
     deviceScaleFactor: 1,
-    mobile: true,
-    screenWidth: 768,
-    screenHeight: 1024,
+    mobile: !loginOnly,
+    screenWidth: loginOnly ? 1440 : 768,
+    screenHeight: loginOnly ? 900 : 1024,
   });
   await waitFor(
     "document.readyState === 'complete' && !!document.querySelector('input[name=email]')",
     "employee login",
   );
+  await waitFor(
+    "document.body.innerText.includes('Iniciar sesión')",
+    "visible employee login content",
+  );
 
+  if (loginOnly) {
+    const pendingLogin = await evaluate(`(() => {
+      const setValue = (element, value) => {
+        const setter = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          "value"
+        ).set;
+        setter.call(element, value);
+        element.dispatchEvent(new Event("input", { bubbles: true }));
+        element.dispatchEvent(new Event("change", { bubbles: true }));
+      };
+      const email = document.querySelector('input[name=email]');
+      const passwordInput = document.querySelector('input[name=password]');
+      const submit = document.querySelector('button[type=submit]');
+      setValue(email, "demo-check@example.invalid");
+      setValue(passwordInput, "demo-check-only");
+      const text = document.body.innerText;
+      return {
+        pendingMessage: text.includes("Integración de autenticación pendiente"),
+        emailEnabled: !email.disabled,
+        passwordEnabled: !passwordInput.disabled,
+        submitEnabled: !submit.disabled,
+        valuesAccepted:
+          email.value === "demo-check@example.invalid" &&
+          passwordInput.value === "demo-check-only",
+        experienceRemoved: !text.includes(
+          "Una experiencia táctil preparada para vendedores"
+        ),
+        inventoryFooterRemoved: !text.includes(
+          "El inventario definitivo siempre se confirma en la plataforma"
+        ),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+      };
+    })()`);
+    if (
+      !pendingLogin.pendingMessage ||
+      !pendingLogin.emailEnabled ||
+      !pendingLogin.passwordEnabled ||
+      !pendingLogin.submitEnabled ||
+      !pendingLogin.valuesAccepted ||
+      !pendingLogin.experienceRemoved ||
+      !pendingLogin.inventoryFooterRemoved ||
+      pendingLogin.overflow
+    ) {
+      throw new Error(
+        `Pending login validation failed: ${JSON.stringify(pendingLogin)}`,
+      );
+    }
+    const pendingScreenshot = await capture("login-pending-corrected.png");
+    console.log(
+      JSON.stringify({ pendingLogin, screenshot: pendingScreenshot }, null, 2),
+    );
+  } else {
   const loginView = await evaluate(`({
     banner: document.body.innerText.includes("MODO DEMOSTRACIÓN"),
     overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
@@ -503,6 +561,7 @@ try {
     browserErrors,
   };
   console.log(JSON.stringify(finalSummary, null, 2));
+  }
 } finally {
   if (socket?.readyState === WebSocket.OPEN) socket.close();
   browserProcess.kill();

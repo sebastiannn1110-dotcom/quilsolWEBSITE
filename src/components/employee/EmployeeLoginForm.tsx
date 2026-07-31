@@ -43,8 +43,6 @@ export function EmployeeLoginForm({
     }
   }
 
-  const disabled = mode === "pending";
-
   return (
     <div
       className={`employee-portal-root grid min-h-dvh bg-[#f7f3ef] lg:grid-cols-[1.05fr_0.95fr] ${
@@ -80,14 +78,7 @@ export function EmployeeLoginForm({
           <h1 className="mt-4 text-5xl font-semibold leading-tight">
             Cotiza, aparta y acompaña cada venta.
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-teal-50/80">
-            Una experiencia táctil preparada para vendedores, managers y
-            administradores de Quiksol.
-          </p>
         </div>
-        <p className="relative text-sm text-white/60">
-          El inventario definitivo siempre se confirma en la plataforma.
-        </p>
       </section>
 
       <section className="flex min-h-dvh items-center justify-center p-5 sm:p-10">
@@ -117,7 +108,8 @@ export function EmployeeLoginForm({
                 role="status"
               >
                 <strong>Integración de autenticación pendiente.</strong> Las
-                ventas simuladas están bloqueadas en este entorno.
+                credenciales pueden ingresarse, pero el modo demostración debe
+                habilitarse en la configuración segura del servidor.
               </div>
             ) : mode === "mock" ? (
               <div className="mt-6 rounded-xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950">
@@ -139,7 +131,6 @@ export function EmployeeLoginForm({
                   type="email"
                   required
                   autoComplete="username"
-                  disabled={disabled}
                   className="focus-ring h-12 rounded-lg border border-slate-300 px-4 font-normal disabled:bg-slate-100"
                 />
               </label>
@@ -151,13 +142,11 @@ export function EmployeeLoginForm({
                     type={showPassword ? "text" : "password"}
                     required
                     autoComplete="current-password"
-                    disabled={disabled}
                     className="focus-ring h-12 w-full rounded-lg border border-slate-300 px-4 pr-12 font-normal disabled:bg-slate-100"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((value) => !value)}
-                    disabled={disabled}
                     className="focus-ring absolute right-1 top-1 inline-flex h-10 w-10 items-center justify-center rounded-md text-slate-600"
                     aria-label={
                       showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
@@ -175,14 +164,13 @@ export function EmployeeLoginForm({
                 <input
                   name="remember"
                   type="checkbox"
-                  disabled={disabled}
                   className="h-5 w-5 accent-orange-600"
                 />
                 Recordar sesión
               </label>
               <button
                 type="submit"
-                disabled={disabled || pending}
+                disabled={pending}
                 className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-orange-600 px-5 py-3 font-semibold text-white transition hover:bg-orange-500 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 {pending ? (

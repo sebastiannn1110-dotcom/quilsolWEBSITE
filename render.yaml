@@ -15,3 +15,11 @@ services:
         value: "1"
       - key: CATALOG_SOURCE
         value: supabase
+      - key: EMPLOYEE_COMMERCE_DEMO_MODE
+        value: "true"
+      - key: EMPLOYEE_MOCK_PASSWORD
+        sync: false
+      - key: EMPLOYEE_SESSION_SECRET
+        generateValue: true
+      - key: EMPLOYEE_MOCK_DELAY_MS
+        value: "300"
