@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Boxes,
   Grid2X2,
@@ -8,9 +9,12 @@ import {
   PackagePlus,
   RefreshCw,
   Search,
+  Sparkles,
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { commerceClient } from "@/lib/platform-api/client";
+import { catalogImageSrc } from "@/lib/catalog/image";
 import {
   employeeCopy,
   employeeIntlLocale,
@@ -39,6 +43,7 @@ export function EmployeeCatalog({
   initial: PaginatedResponse<Product>;
   locale: string;
 }) {
+  const router = useRouter();
   const draft = useQuoteDraft();
   const [result, setResult] = useState(initial);
   const [view, setView] = useState<"cards" | "table">("cards");
@@ -78,9 +83,11 @@ export function EmployeeCatalog({
       products: "productos",
       cardView: "Vista en tarjetas",
       tableView: "Vista en tabla",
+      image: "Imagen",
       availableUnits: "disponibles",
       authorizedPrice: "Precio de venta autorizado",
       add: "Agregar",
+      buyWithAi: "Comprar con IA",
       added: "agregado a la cotización.",
       description: "Descripción",
       price: "Precio",
@@ -114,9 +121,11 @@ export function EmployeeCatalog({
       products: "products",
       cardView: "Card view",
       tableView: "Table view",
+      image: "Image",
       availableUnits: "available",
       authorizedPrice: "Authorized sales price",
       add: "Add",
+      buyWithAi: "Buy with AI",
       added: "added to the quote.",
       description: "Description",
       price: "Price",
@@ -149,9 +158,11 @@ export function EmployeeCatalog({
       products: "件产品",
       cardView: "卡片视图",
       tableView: "表格视图",
+      image: "图片",
       availableUnits: "可用",
       authorizedPrice: "授权销售价格",
       add: "添加",
+      buyWithAi: "AI 购买",
       added: "已加入报价。",
       description: "描述",
       price: "价格",
@@ -226,6 +237,11 @@ export function EmployeeCatalog({
   function search(event: FormEvent) {
     event.preventDefault();
     void refresh();
+  }
+
+  function buyWithAi(product: Product) {
+    draft.addProduct(product);
+    router.push(`/${locale}/employee/quotes/new?assistant=1`);
   }
 
   return (
@@ -420,24 +436,35 @@ export function EmployeeCatalog({
       ) : result.data.length ? (
         view === "cards" ? (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-4">
-            {result.data.map((product) => (
+            {result.data.map((product, index) => (
               <article
                 key={product.id}
                 className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm"
               >
-                <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-[#062f33] to-[#0f4a4f] p-4 text-white">
-                  <div className="text-center">
-                    <Boxes
-                      aria-hidden="true"
-                      className="mx-auto text-orange-300"
-                      size={30}
+                <div className="relative aspect-[4/3] border-b border-stone-100 bg-white">
+                  {product.imageUrl ? (
+                    <Image
+                      src={catalogImageSrc(product.imageUrl, {
+                        thumbnail: true,
+                      })}
+                      alt={`${product.manufacturer} ${product.mpn}`}
+                      fill
+                      unoptimized
+                      loading={index < 4 ? "eager" : "lazy"}
+                      fetchPriority={index < 4 ? "high" : "auto"}
+                      sizes="(min-width: 1536px) 25vw, (min-width: 768px) 33vw, 50vw"
+                      className="object-contain p-2 sm:p-4"
                     />
-                    <p className="mt-3 font-mono text-xs font-bold sm:text-sm">
-                      {product.mpn}
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#062f33] to-[#0f4a4f] p-4 text-white">
+                      <Boxes aria-hidden="true" size={30} />
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col p-3 sm:p-4">
+                  <p className="truncate font-mono text-[10px] font-bold text-slate-500 sm:text-xs">
+                    {product.mpn}
+                  </p>
                   <p className="truncate text-[10px] font-bold uppercase tracking-wide text-cyan-800 sm:text-xs">
                     {product.manufacturer}
                   </p>
@@ -464,18 +491,29 @@ export function EmployeeCatalog({
                     <p className="text-[10px] text-slate-500">
                       {copy.authorizedPrice}
                     </p>
-                    <button
-                      type="button"
-                      disabled={product.availability.availableQuantity <= 0}
-                      onClick={() => {
-                        draft.addProduct(product);
-                        setNotice(`${product.mpn} ${copy.added}`);
-                      }}
-                      className="focus-ring mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-2 text-xs font-semibold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:bg-slate-300 sm:text-sm"
-                    >
-                      <PackagePlus aria-hidden="true" size={17} />
-                      {copy.add}
-                    </button>
+                    <div className="mt-3 grid gap-2">
+                      <button
+                        type="button"
+                        disabled={product.availability.availableQuantity <= 0}
+                        onClick={() => {
+                          draft.addProduct(product);
+                          setNotice(`${product.mpn} ${copy.added}`);
+                        }}
+                        className="focus-ring inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-2 text-xs font-semibold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:bg-slate-300 sm:text-sm"
+                      >
+                        <PackagePlus aria-hidden="true" size={17} />
+                        {copy.add}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={product.availability.availableQuantity <= 0}
+                        onClick={() => buyWithAi(product)}
+                        className="focus-ring inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#062f33] px-2 text-xs font-semibold text-white hover:bg-[#0f4a4f] disabled:cursor-not-allowed disabled:bg-slate-300 sm:text-sm"
+                      >
+                        <Sparkles aria-hidden="true" size={17} />
+                        {copy.buyWithAi}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -486,6 +524,7 @@ export function EmployeeCatalog({
             <table className="w-full min-w-[920px] text-left text-sm">
               <thead className="bg-[#062f33] text-xs uppercase tracking-wide text-white">
                 <tr>
+                  <th className="px-4 py-4">{copy.image}</th>
                   <th className="px-4 py-4">MPN</th>
                   <th className="px-4 py-4">{copy.description}</th>
                   <th className="px-4 py-4">{copy.manufacturer}</th>
@@ -497,6 +536,21 @@ export function EmployeeCatalog({
               <tbody className="divide-y divide-stone-100">
                 {result.data.map((product) => (
                   <tr key={product.id}>
+                    <td className="px-4 py-3">
+                      {product.imageUrl ? (
+                        <Image
+                          src={catalogImageSrc(product.imageUrl, {
+                            thumbnail: true,
+                          })}
+                          alt={`${product.manufacturer} ${product.mpn}`}
+                          width={64}
+                          height={48}
+                          unoptimized
+                          loading="lazy"
+                          className="h-12 w-16 rounded-md border border-stone-200 bg-white object-contain p-1"
+                        />
+                      ) : null}
+                    </td>
                     <td className="px-4 py-4 font-mono font-semibold">
                       {product.mpn}
                     </td>
@@ -517,14 +571,25 @@ export function EmployeeCatalog({
                       {money(product.authorizedUnitPrice, locale)}
                     </td>
                     <td className="px-4 py-4">
-                      <button
-                        type="button"
-                        disabled={product.availability.availableQuantity <= 0}
-                        onClick={() => draft.addProduct(product)}
-                        className="focus-ring min-h-11 rounded-lg bg-orange-600 px-4 font-semibold text-white disabled:bg-slate-300"
-                      >
-                        {copy.add}
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          disabled={product.availability.availableQuantity <= 0}
+                          onClick={() => draft.addProduct(product)}
+                          className="focus-ring min-h-11 rounded-lg bg-orange-600 px-4 font-semibold text-white disabled:bg-slate-300"
+                        >
+                          {copy.add}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={product.availability.availableQuantity <= 0}
+                          onClick={() => buyWithAi(product)}
+                          className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#062f33] px-4 font-semibold text-white disabled:bg-slate-300"
+                        >
+                          <Sparkles aria-hidden="true" size={17} />
+                          {copy.buyWithAi}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

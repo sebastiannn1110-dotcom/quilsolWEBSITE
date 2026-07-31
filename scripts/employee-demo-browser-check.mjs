@@ -339,10 +339,25 @@ try {
     "location.pathname === '/es/employee/catalog' && document.body.innerText.includes('48 productos')",
     "catalog with 48 products",
   );
+  await waitFor(
+    `[...document.querySelectorAll(
+      'article img[src*="/images/catalog/thumbnails/"]'
+    )].filter((image) => image.complete && image.naturalWidth > 0).length >= 4`,
+    "priority catalog images",
+  );
   const catalogSummary = await evaluate(`(() => {
     const articles = [...document.querySelectorAll("article")];
+    const productImages = [
+      ...document.querySelectorAll(
+        'article img[src*="/images/catalog/thumbnails/"]'
+      )
+    ];
     const addButtons = [...document.querySelectorAll("button")].filter(
       (button) => button.textContent.trim() === "Agregar" && !button.disabled
+    );
+    const aiButtons = [...document.querySelectorAll("button")].filter(
+      (button) =>
+        button.textContent.trim() === "Comprar con IA" && !button.disabled
     );
     const selected = addButtons.slice(0, 3).map((button) => {
       const text = button.closest("article").innerText;
@@ -352,6 +367,11 @@ try {
     });
     return {
       articles: articles.length,
+      images: productImages.length,
+      loadedImages: productImages.filter(
+        (image) => image.complete && image.naturalWidth > 0
+      ).length,
+      aiButtons: aiButtons.length,
       selected,
       allHaveMpn: articles.every((article) => /QKS-\\d{4}-[A-E]/.test(article.innerText)),
       search: !!document.querySelector('input[placeholder*="Buscar MPN"]'),
@@ -360,14 +380,26 @@ try {
   })()`);
   if (
     catalogSummary.articles < 3 ||
+    catalogSummary.images !== catalogSummary.articles ||
+    catalogSummary.loadedImages < 4 ||
+    catalogSummary.aiButtons < 1 ||
     catalogSummary.selected.length !== 3 ||
     catalogSummary.selected.some((item) => !item) ||
     !catalogSummary.allHaveMpn ||
     !catalogSummary.search ||
     catalogSummary.overflow
   ) {
-    throw new Error("Catalog interface validation failed.");
+    throw new Error(
+      `Catalog interface validation failed: ${JSON.stringify(catalogSummary)}`,
+    );
   }
+  await evaluate(`(() => {
+    const firstArticle = document.querySelector("article");
+    window.scrollTo(0, Math.max(0, (firstArticle?.offsetTop || 0) - 16));
+    return true;
+  })()`);
+  await sleep(200);
+  const catalogScreenshot = await capture("employee-catalog-images.png");
 
   await sleep(300);
   await evaluate(`(() => {
@@ -570,6 +602,40 @@ try {
   }
   const receiptScreenshot = await capture("ipad-landscape-receipt.png");
 
+  await send("Page.navigate", { url: `${baseUrl}/es/employee/catalog` });
+  await sleep(300);
+  await waitFor(
+    "location.pathname === '/es/employee/catalog' && document.body.innerText.includes('Comprar con IA')",
+    "catalog AI purchase action",
+  );
+  await evaluate(`(() => {
+    const button = [...document.querySelectorAll("button")].find(
+      (item) => item.textContent.trim() === "Comprar con IA" && !item.disabled
+    );
+    if (!button) throw new Error("AI purchase button not found");
+    button.click();
+    return true;
+  })()`);
+  await waitFor(
+    "location.pathname === '/es/employee/quotes/new' && new URLSearchParams(location.search).get('assistant') === '1' && document.body.innerText.includes('Compra asistida por IA')",
+    "assisted purchase quote builder",
+  );
+  const assistedPurchaseSummary = await evaluate(`({
+    path: location.pathname,
+    assistant: new URLSearchParams(location.search).get("assistant"),
+    panelVisible: document.body.innerText.includes("Compra asistida por IA"),
+    productCount: document.querySelectorAll('input[aria-label^="Cantidad"]').length
+  })`);
+  if (
+    assistedPurchaseSummary.assistant !== "1" ||
+    !assistedPurchaseSummary.panelVisible ||
+    assistedPurchaseSummary.productCount < 1
+  ) {
+    throw new Error(
+      `Assisted purchase validation failed: ${JSON.stringify(assistedPurchaseSummary)}`,
+    );
+  }
+
   const finalSummary = {
     login: loginView,
     catalog: catalogSummary,
@@ -577,8 +643,10 @@ try {
     reservation: reservationSummary,
     order: orderSummary,
     receipt: receiptSummary,
+    assistedPurchase: assistedPurchaseSummary,
     screenshots: {
       dashboard: dashboardScreenshot,
+      catalog: catalogScreenshot,
       receipt: receiptScreenshot,
     },
     browserErrors,

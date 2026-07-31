@@ -10,6 +10,7 @@ import {
   Plus,
   Save,
   ShoppingCart,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
@@ -90,6 +91,9 @@ export function QuoteBuilder({
       previewReady: "Vista previa lista. Guarda la cotización para generar el PDF.",
       preview: "Vista previa",
       afterSave: "Disponible después de guardar",
+      assistantTitle: "Compra asistida por IA",
+      assistantBody:
+        "El producto fue agregado con su cantidad mínima recomendada. Selecciona el cliente y revisa la disponibilidad para completar la compra.",
     },
     en: {
       defaultTerms: "Payment and delivery subject to confirmation.",
@@ -133,6 +137,9 @@ export function QuoteBuilder({
       previewReady: "Preview ready. Save the quote to generate the PDF.",
       preview: "Preview",
       afterSave: "Available after saving",
+      assistantTitle: "AI-assisted purchase",
+      assistantBody:
+        "The product was added with its recommended minimum quantity. Select the customer and review availability to complete the purchase.",
     },
     zh: {
       defaultTerms: "付款和交付须经确认。",
@@ -176,6 +183,9 @@ export function QuoteBuilder({
       previewReady: "预览已准备。保存报价后可生成 PDF。",
       preview: "预览",
       afterSave: "保存后可用",
+      assistantTitle: "AI 辅助采购",
+      assistantBody:
+        "产品已按建议的最低数量添加。请选择客户并检查库存以完成采购。",
     },
   });
   const customerId =
@@ -191,6 +201,7 @@ export function QuoteBuilder({
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
   const maxDiscount = maximumDiscountByRole[session.role];
+  const assistedPurchase = searchParams.get("assistant") === "1";
 
   const totals = useMemo(() => {
     const subtotal = draft.items.reduce(
@@ -275,6 +286,16 @@ export function QuoteBuilder({
           </Link>
         }
       />
+
+      {assistedPurchase ? (
+        <section className="flex gap-3 rounded-xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950">
+          <Sparkles aria-hidden="true" className="mt-0.5 shrink-0" size={20} />
+          <div>
+            <strong className="block">{copy.assistantTitle}</strong>
+            <span>{copy.assistantBody}</span>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-6 2xl:grid-cols-[1fr_360px]">
         <div className="space-y-6">
