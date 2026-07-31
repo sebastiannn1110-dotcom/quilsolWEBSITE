@@ -20,6 +20,22 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   applicationName: "Quicksol Global",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Quiksol",
+  },
+  icons: {
+    apple: "/icons/quiksol-pwa-192.png",
+  },
+};
+
+export const viewport = {
+  themeColor: "#062f33",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export function generateStaticParams() {

@@ -34,6 +34,15 @@ body::selection {
   color: #071314;
 }
 
+body:has(.employee-portal-root) > header,
+body:has(.employee-portal-root) > footer {
+  display: none;
+}
+
+body:has(.employee-portal-root) > main {
+  min-height: 100dvh;
+}
+
 a,
 button,
 input,
@@ -126,5 +135,14 @@ textarea {
   .reveal-on-load,
   .route-loading-bar {
     animation: none !important;
+  }
+}
+
+@media (pointer: coarse) {
+  .employee-portal-root button,
+  .employee-portal-root a,
+  .employee-portal-root input,
+  .employee-portal-root select {
+    min-height: 44px;
   }
 }
