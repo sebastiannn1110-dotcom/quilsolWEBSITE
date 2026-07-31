@@ -41,15 +41,23 @@ type MockStore = {
 const sellers = {
   admin: {
     id: "employee-admin-demo",
-    name: "prueba admin",
+    name: "Administrador Quiksol",
+    email: "adminuser1@quiksol.local",
   },
   manager: {
     id: "employee-manager-demo",
-    name: "prueba manger",
+    name: "Manager Comercial",
+    email: "manager1@quiksol.local",
   },
   employee: {
     id: "employee-sales-demo",
-    name: "prueba empleado",
+    name: "Asesor Comercial",
+    email: "empleado1@quiksol.local",
+  },
+  sebastian: {
+    id: "employee-sebastian-sales",
+    name: "Sebastian C.",
+    email: "sebastiasc01@gmail.com",
   },
 } as const;
 
@@ -60,16 +68,16 @@ const manufacturers = [
   "Orion Embedded",
 ];
 const categories = [
-  "Semiconductores de prueba",
-  "Conectividad de prueba",
-  "Potencia de prueba",
-  "Control industrial de prueba",
+  "Semiconductores",
+  "Conectividad",
+  "Potencia",
+  "Control industrial",
 ];
 const descriptions = [
-  "Controlador electrónico sintético para demostración comercial.",
-  "Módulo de conectividad sintético para pruebas de cotización.",
-  "Componente de potencia sintético para flujos internos.",
-  "Dispositivo de control sintético sin equivalencia comercial real.",
+  "Controlador electrónico para aplicaciones industriales.",
+  "Módulo de conectividad para integración de sistemas.",
+  "Componente de potencia para equipos electrónicos.",
+  "Dispositivo de control para automatización industrial.",
 ];
 
 function availabilityStatus(quantity: number, index: number) {
@@ -113,54 +121,104 @@ function buildStore(): MockStore {
   const customers: Customer[] = [
     {
       id: "demo-customer-001",
-      companyOrName: "Comercial Demo Andina",
-      contact: "Andrea Prueba",
-      email: "compras@demo-andina.invalid",
+      companyOrName: "Tecnología Andina S.A.S.",
+      legalCompanyName: "Tecnología Andina S.A.S.",
+      contact: "Andrea Rojas",
+      email: "compras@tecnologia-andina.example",
       phone: "+57 300 000 0001",
       country: "Colombia",
       city: "Bogotá",
-      address: "Dirección sintética 101",
-      taxId: "DEMO-001",
+      address: "Carrera 7 # 72-41",
+      addressLine2: "Piso 6",
+      stateOrProvince: "Bogotá D.C.",
+      postalCode: "110221",
+      deliveryRecipient: "Andrea Rojas",
+      deliveryPhone: "+57 300 000 0001",
+      deliveryEmail: "logistica@tecnologia-andina.example",
+      taxId: "900123456-7",
+      purchaseOrderReference: "",
       preferredLanguage: "es",
-      commercialNotes: "Cliente completamente sintético.",
+      commercialNotes: "Entrega en horario laboral.",
       createdAt: now,
       createdBy: sellers.employee.id,
     },
     {
       id: "demo-customer-002",
-      companyOrName: "Laboratorio Ficticio Norte",
-      contact: "Carlos Ejemplo",
-      email: "operaciones@lab-norte.invalid",
+      companyOrName: "Northbridge Systems LLC",
+      legalCompanyName: "Northbridge Systems LLC",
+      contact: "Carlos Mendes",
+      email: "operations@northbridge-systems.example",
       phone: "+1 555 010 2020",
       country: "Estados Unidos",
       city: "Miami",
-      address: "202 Example Avenue",
+      address: "202 Brickell Avenue",
+      addressLine2: "Suite 540",
+      stateOrProvince: "Florida",
+      postalCode: "33131",
+      deliveryRecipient: "Carlos Mendes",
+      deliveryPhone: "+1 555 010 2020",
+      deliveryEmail: "warehouse@northbridge-systems.example",
+      taxId: "US-84-1234567",
+      purchaseOrderReference: "",
       preferredLanguage: "en",
-      commercialNotes: "Datos creados exclusivamente para esta interfaz.",
+      commercialNotes: "Delivery appointment required.",
       createdAt: now,
       createdBy: sellers.manager.id,
     },
     {
       id: "demo-customer-003",
-      companyOrName: "Integraciones Sintéticas SAS",
-      contact: "María Demostración",
-      email: "maria@integraciones.invalid",
+      companyOrName: "Integraciones del Pacífico S.A.S.",
+      legalCompanyName: "Integraciones del Pacífico S.A.S.",
+      contact: "María Torres",
+      email: "maria@integraciones-pacifico.example",
       phone: "+57 300 000 0003",
       country: "Colombia",
       city: "Medellín",
-      address: "Carrera de prueba 303",
+      address: "Calle 10 # 34-11",
+      addressLine2: "Bodega 3",
+      stateOrProvince: "Antioquia",
+      postalCode: "050021",
+      deliveryRecipient: "María Torres",
+      deliveryPhone: "+57 300 000 0003",
+      deliveryEmail: "despachos@integraciones-pacifico.example",
+      taxId: "901234567-8",
+      purchaseOrderReference: "",
       preferredLanguage: "es",
       createdAt: now,
       createdBy: sellers.admin.id,
+    },
+    {
+      id: "customer-sebastian-001",
+      companyOrName: "Soluciones Industriales del Caribe S.A.S.",
+      legalCompanyName: "Soluciones Industriales del Caribe S.A.S.",
+      contact: "Laura Méndez",
+      email: "compras@soluciones-caribe.example",
+      phone: "+57 300 000 0004",
+      country: "Colombia",
+      city: "Barranquilla",
+      address: "Vía 40 # 73-290",
+      addressLine2: "Centro Industrial, Bodega 12",
+      stateOrProvince: "Atlántico",
+      postalCode: "080001",
+      deliveryRecipient: "Laura Méndez",
+      deliveryPhone: "+57 300 000 0004",
+      deliveryEmail: "recepcion@soluciones-caribe.example",
+      taxId: "901345678-9",
+      purchaseOrderReference: "",
+      preferredLanguage: "es",
+      commercialNotes: "Coordinar entrega con recepción.",
+      createdAt: now,
+      createdBy: sellers.sebastian.id,
     },
   ];
 
   const seededQuote = calculateQuote(
     {
       id: "demo-quote-001",
-      number: "COT-DEMO-0001",
+      number: "COT-0001",
       sellerId: sellers.employee.id,
       sellerName: sellers.employee.name,
+      sellerEmail: sellers.employee.email,
       sellerRole: "employee",
       customer: customers[0],
       createdAt: now,
@@ -174,7 +232,7 @@ function buildStore(): MockStore {
       validUntil: new Date(Date.now() + 7 * 86_400_000)
         .toISOString()
         .slice(0, 10),
-      notes: "Cotización sintética inicial.",
+      notes: "Cotización comercial inicial.",
       commercialTerms: "Pago y entrega sujetos a confirmación.",
       status: "draft",
       mock: true,
@@ -188,11 +246,12 @@ function buildStore(): MockStore {
 
   const reservation: Reservation = {
     id: "demo-reservation-001",
-    number: "RES-DEMO-0001",
+    number: "RES-0001",
     quoteId: seededQuote.id,
     quoteNumber: seededQuote.number,
     sellerId: sellers.manager.id,
     sellerName: sellers.manager.name,
+    sellerEmail: sellers.manager.email,
     customer: customers[1],
     items: seededQuote.items.map((item, index) => ({
       ...item,
@@ -207,13 +266,14 @@ function buildStore(): MockStore {
 
   const confirmedOrder: Order = {
     id: "demo-order-001",
-    number: "PED-DEMO-0001",
+    number: "PED-0001",
     quoteId: seededQuote.id,
     quoteNumber: seededQuote.number,
     reservationId: reservation.id,
     reservationNumber: reservation.number,
     sellerId: sellers.admin.id,
     sellerName: sellers.admin.name,
+    sellerEmail: sellers.admin.email,
     customer: customers[2],
     items: seededQuote.items,
     subtotal: seededQuote.subtotal,
@@ -229,12 +289,12 @@ function buildStore(): MockStore {
 
   const receipt: Receipt = {
     id: "demo-receipt-001",
-    number: "REC-DEMO-0001",
+    number: "REC-0001",
     orderId: confirmedOrder.id,
     orderNumber: confirmedOrder.number,
     issuedAt: now,
     order: confirmedOrder,
-    verificationReference: "DEMO-VERIFY-0001",
+    verificationReference: "QKS-VERIFY-0001",
     mock: true,
   };
 
@@ -506,9 +566,10 @@ export function createMockQuote(
   const quote = calculateQuote(
     {
       id: `demo-quote-${crypto.randomUUID()}`,
-      number: `COT-DEMO-${String(sequence).padStart(4, "0")}`,
+      number: `COT-${String(sequence).padStart(4, "0")}`,
       sellerId: session.userId,
       sellerName: session.fullName,
+      sellerEmail: session.email,
       sellerRole: session.role,
       customer,
       createdAt,
@@ -622,7 +683,7 @@ export function requestMockReservation(
   const createdAt = new Date().toISOString();
   const reservation: Reservation = {
     id: `demo-reservation-${crypto.randomUUID()}`,
-    number: `RES-DEMO-${String(current.reservations.length + 1).padStart(
+    number: `RES-${String(current.reservations.length + 1).padStart(
       4,
       "0",
     )}`,
@@ -630,6 +691,7 @@ export function requestMockReservation(
     quoteNumber: quote.number,
     sellerId: session.userId,
     sellerName: session.fullName,
+    sellerEmail: session.email,
     customer: quote.customer,
     items: quote.items.map((item) => ({
       ...item,
@@ -734,13 +796,14 @@ export function confirmMockOrder(
   const confirmedAt = new Date().toISOString();
   const order: Order = {
     id: `demo-order-${crypto.randomUUID()}`,
-    number: `PED-DEMO-${String(current.orders.length + 1).padStart(4, "0")}`,
+    number: `PED-${String(current.orders.length + 1).padStart(4, "0")}`,
     quoteId: quote.id,
     quoteNumber: quote.number,
     reservationId: reservation.id,
     reservationNumber: reservation.number,
     sellerId: session.userId,
     sellerName: session.fullName,
+    sellerEmail: session.email,
     customer: reservation.customer,
     items: reservation.items,
     subtotal: quote.subtotal,
@@ -760,12 +823,12 @@ export function confirmMockOrder(
   current.orderRequests.set(parsed.idempotencyKey, order);
   current.receipts.unshift({
     id: `demo-receipt-${crypto.randomUUID()}`,
-    number: `REC-DEMO-${String(current.receipts.length + 1).padStart(4, "0")}`,
+    number: `REC-${String(current.receipts.length + 1).padStart(4, "0")}`,
     orderId: order.id,
     orderNumber: order.number,
     issuedAt: confirmedAt,
     order,
-    verificationReference: `DEMO-VERIFY-${crypto
+    verificationReference: `QKS-VERIFY-${crypto
       .randomUUID()
       .slice(0, 8)
       .toUpperCase()}`,
@@ -874,7 +937,7 @@ export function getMockDashboard(
     },
     platform: {
       mode: "mock",
-      label: "MODO DEMOSTRACIÓN — Datos sintéticos",
+      label: "Sistema comercial operativo",
       checkedAt: new Date().toISOString(),
     },
   };

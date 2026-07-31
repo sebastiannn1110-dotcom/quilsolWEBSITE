@@ -17,19 +17,25 @@ const mockEmployees: Array<{
   {
     userId: "employee-admin-demo",
     email: "adminuser1@quiksol.local",
-    fullName: "prueba admin",
+    fullName: "Administrador Quiksol",
     role: "admin",
   },
   {
     userId: "employee-manager-demo",
     email: "manager1@quiksol.local",
-    fullName: "prueba manger",
+    fullName: "Manager Comercial",
     role: "manager",
   },
   {
     userId: "employee-sales-demo",
     email: "empleado1@quiksol.local",
-    fullName: "prueba empleado",
+    fullName: "Asesor Comercial",
+    role: "employee",
+  },
+  {
+    userId: "employee-sebastian-sales",
+    email: "sebastiasc01@gmail.com",
+    fullName: "Sebastian C.",
     role: "employee",
   },
 ];

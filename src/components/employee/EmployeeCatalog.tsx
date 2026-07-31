@@ -11,6 +11,12 @@ import {
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { commerceClient } from "@/lib/platform-api/client";
+import {
+  employeeCopy,
+  employeeIntlLocale,
+  employeeProductText,
+  employeeStatusLabel,
+} from "@/lib/platform-api/employee-i18n";
 import type {
   InventoryStatus,
   PaginatedResponse,
@@ -19,26 +25,19 @@ import type {
 import { EmployeePageHeader, StatusBadge } from "./EmployeeShell";
 import { useQuoteDraft } from "./QuoteDraftProvider";
 
-function money(value: number) {
-  return new Intl.NumberFormat("es-CO", {
+function money(value: number, locale: string) {
+  return new Intl.NumberFormat(employeeIntlLocale(locale), {
     style: "currency",
     currency: "USD",
   }).format(value);
 }
 
-const statusLabels: Record<InventoryStatus, string> = {
-  available: "Disponible",
-  low_stock: "Stock bajo",
-  partially_reserved: "Parcialmente reservado",
-  temporarily_reserved: "Temporalmente reservado",
-  unavailable: "Sin disponibilidad",
-  updating: "Actualizando inventario",
-};
-
 export function EmployeeCatalog({
   initial,
+  locale,
 }: {
   initial: PaginatedResponse<Product>;
+  locale: string;
 }) {
   const draft = useQuoteDraft();
   const [result, setResult] = useState(initial);
@@ -53,6 +52,115 @@ export function EmployeeCatalog({
     sort: "availability",
   });
   const requestRunning = useRef(false);
+  const copy = employeeCopy(locale, {
+    es: {
+      updated: "Disponibilidad actualizada.",
+      updateError: "No se pudo actualizar el catálogo.",
+      eyebrow: "Catálogo comercial",
+      title: "Encuentra el componente correcto",
+      body: "Busca por MPN, descripción, fabricante o categoría. La disponibilidad se reconfirma al reservar.",
+      update: "Actualizar",
+      inventoryChanged:
+        "La disponibilidad de uno o más productos de tu cotización cambió. Revisa las cantidades antes de reservar.",
+      searchCatalog: "Buscar catálogo",
+      placeholder: "Buscar MPN, fabricante, descripción o categoría…",
+      allManufacturers: "Todos los fabricantes",
+      allCategories: "Todas las categorías",
+      allAvailability: "Toda disponibilidad",
+      availability: "Disponibilidad",
+      manufacturer: "Fabricante",
+      category: "Categoría",
+      order: "Orden",
+      mostAvailable: "Mayor disponibilidad",
+      lowestPrice: "Precio menor",
+      highestPrice: "Precio mayor",
+      search: "Buscar",
+      products: "productos",
+      cardView: "Vista en tarjetas",
+      tableView: "Vista en tabla",
+      availableUnits: "disponibles",
+      authorizedPrice: "Precio de venta autorizado",
+      add: "Agregar",
+      added: "agregado a la cotización.",
+      description: "Descripción",
+      price: "Precio",
+      noProducts: "No encontramos productos",
+      noProductsBody: "Ajusta la búsqueda o elimina alguno de los filtros.",
+      loadingMore: "Cargando…",
+      loadMore: "Cargar más productos",
+    },
+    en: {
+      updated: "Availability updated.",
+      updateError: "Unable to update the catalog.",
+      eyebrow: "Commercial catalog",
+      title: "Find the right component",
+      body: "Search by MPN, description, manufacturer or category. Availability is reconfirmed when reserving.",
+      update: "Refresh",
+      inventoryChanged:
+        "Availability changed for one or more quote items. Review quantities before reserving.",
+      searchCatalog: "Search catalog",
+      placeholder: "Search MPN, manufacturer, description or category…",
+      allManufacturers: "All manufacturers",
+      allCategories: "All categories",
+      allAvailability: "All availability",
+      availability: "Availability",
+      manufacturer: "Manufacturer",
+      category: "Category",
+      order: "Sort",
+      mostAvailable: "Highest availability",
+      lowestPrice: "Lowest price",
+      highestPrice: "Highest price",
+      search: "Search",
+      products: "products",
+      cardView: "Card view",
+      tableView: "Table view",
+      availableUnits: "available",
+      authorizedPrice: "Authorized sales price",
+      add: "Add",
+      added: "added to the quote.",
+      description: "Description",
+      price: "Price",
+      noProducts: "No products found",
+      noProductsBody: "Adjust your search or remove a filter.",
+      loadingMore: "Loading…",
+      loadMore: "Load more products",
+    },
+    zh: {
+      updated: "库存已更新。",
+      updateError: "无法更新产品目录。",
+      eyebrow: "商务产品目录",
+      title: "查找合适的元器件",
+      body: "可按 MPN、描述、制造商或类别搜索。预留时将再次确认库存。",
+      update: "更新",
+      inventoryChanged: "报价中一个或多个产品的库存已变化。预留前请检查数量。",
+      searchCatalog: "搜索产品目录",
+      placeholder: "搜索 MPN、制造商、描述或类别…",
+      allManufacturers: "所有制造商",
+      allCategories: "所有类别",
+      allAvailability: "所有库存状态",
+      availability: "库存",
+      manufacturer: "制造商",
+      category: "类别",
+      order: "排序",
+      mostAvailable: "库存从高到低",
+      lowestPrice: "价格从低到高",
+      highestPrice: "价格从高到低",
+      search: "搜索",
+      products: "件产品",
+      cardView: "卡片视图",
+      tableView: "表格视图",
+      availableUnits: "可用",
+      authorizedPrice: "授权销售价格",
+      add: "添加",
+      added: "已加入报价。",
+      description: "描述",
+      price: "价格",
+      noProducts: "未找到产品",
+      noProductsBody: "请调整搜索或移除筛选条件。",
+      loadingMore: "正在加载…",
+      loadMore: "加载更多产品",
+    },
+  });
 
   const manufacturers = useMemo(
     () => [...new Set(initial.data.map((item) => item.manufacturer))].sort(),
@@ -89,21 +197,21 @@ export function EmployeeCatalog({
         );
         draft.reconcileInventory(next.data);
         if (options?.silent) {
-          setNotice("Disponibilidad actualizada.");
+          setNotice(copy.updated);
           window.setTimeout(() => setNotice(""), 4500);
         }
       } catch (error) {
         setNotice(
           error instanceof Error
             ? error.message
-            : "No se pudo actualizar el catálogo.",
+            : copy.updateError,
         );
       } finally {
         requestRunning.current = false;
         setLoading(false);
       }
     },
-    [draft, filters],
+    [copy.updateError, copy.updated, draft, filters],
   );
 
   useEffect(() => {
@@ -123,9 +231,9 @@ export function EmployeeCatalog({
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <EmployeePageHeader
-        eyebrow="Catálogo comercial"
-        title="Encuentra el componente correcto"
-        body="Busca por MPN, descripción, fabricante o categoría. La cantidad visible llega del backend y se reconfirma al apartar."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        body={copy.body}
         actions={
           <button
             type="button"
@@ -138,15 +246,14 @@ export function EmployeeCatalog({
               size={18}
               className={loading ? "animate-spin" : ""}
             />
-            Actualizar
+            {copy.update}
           </button>
         }
       />
 
       {draft.requiresReconfirmation ? (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-          La disponibilidad de uno o más productos de tu borrador cambió.
-          Revisa las cantidades antes de apartar.
+          {copy.inventoryChanged}
         </div>
       ) : null}
       {notice ? (
@@ -163,7 +270,7 @@ export function EmployeeCatalog({
         className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"
       >
         <label className="relative block">
-          <span className="sr-only">Buscar catálogo</span>
+          <span className="sr-only">{copy.searchCatalog}</span>
           <Search
             aria-hidden="true"
             className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -176,7 +283,7 @@ export function EmployeeCatalog({
                 query: event.target.value,
               }))
             }
-            placeholder="Buscar MPN, fabricante, descripción o categoría…"
+            placeholder={copy.placeholder}
             className="focus-ring h-14 w-full rounded-xl border border-slate-300 pl-12 pr-4 text-base"
           />
         </label>
@@ -190,9 +297,9 @@ export function EmployeeCatalog({
               }))
             }
             className="focus-ring min-h-12 rounded-lg border border-slate-300 bg-white px-3"
-            aria-label="Fabricante"
+            aria-label={copy.manufacturer}
           >
-            <option value="">Todos los fabricantes</option>
+            <option value="">{copy.allManufacturers}</option>
             {manufacturers.map((item) => (
               <option key={item}>{item}</option>
             ))}
@@ -206,9 +313,9 @@ export function EmployeeCatalog({
               }))
             }
             className="focus-ring min-h-12 rounded-lg border border-slate-300 bg-white px-3"
-            aria-label="Categoría"
+            aria-label={copy.category}
           >
-            <option value="">Todas las categorías</option>
+            <option value="">{copy.allCategories}</option>
             {categories.map((item) => (
               <option key={item}>{item}</option>
             ))}
@@ -222,12 +329,21 @@ export function EmployeeCatalog({
               }))
             }
             className="focus-ring min-h-12 rounded-lg border border-slate-300 bg-white px-3"
-            aria-label="Disponibilidad"
+            aria-label={copy.availability}
           >
-            <option value="">Toda disponibilidad</option>
-            {Object.entries(statusLabels).map(([value, label]) => (
+            <option value="">{copy.allAvailability}</option>
+            {(
+              [
+                "available",
+                "low_stock",
+                "partially_reserved",
+                "temporarily_reserved",
+                "unavailable",
+                "updating",
+              ] as InventoryStatus[]
+            ).map((value) => (
               <option key={value} value={value}>
-                {label}
+                {employeeStatusLabel(locale, value)}
               </option>
             ))}
           </select>
@@ -240,12 +356,12 @@ export function EmployeeCatalog({
               }))
             }
             className="focus-ring min-h-12 rounded-lg border border-slate-300 bg-white px-3"
-            aria-label="Orden"
+            aria-label={copy.order}
           >
-            <option value="availability">Mayor disponibilidad</option>
+            <option value="availability">{copy.mostAvailable}</option>
             <option value="mpn">MPN A–Z</option>
-            <option value="price_asc">Precio menor</option>
-            <option value="price_desc">Precio mayor</option>
+            <option value="price_asc">{copy.lowestPrice}</option>
+            <option value="price_desc">{copy.highestPrice}</option>
           </select>
           <button
             type="submit"
@@ -257,20 +373,20 @@ export function EmployeeCatalog({
             ) : (
               <Search size={18} />
             )}
-            Buscar
+            {copy.search}
           </button>
         </div>
       </form>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-600">
-          {result.total} productos sintéticos
+          {result.total} {copy.products}
         </p>
         <div className="flex rounded-lg border border-stone-200 bg-white p-1">
           <button
             type="button"
             onClick={() => setView("cards")}
-            aria-label="Vista en tarjetas"
+            aria-label={copy.cardView}
             aria-pressed={view === "cards"}
             className={`focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md ${
               view === "cards" ? "bg-[#062f33] text-white" : "text-slate-600"
@@ -281,7 +397,7 @@ export function EmployeeCatalog({
           <button
             type="button"
             onClick={() => setView("table")}
-            aria-label="Vista en tabla"
+            aria-label={copy.tableView}
             aria-pressed={view === "table"}
             className={`focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md ${
               view === "table" ? "bg-[#062f33] text-white" : "text-slate-600"
@@ -326,35 +442,39 @@ export function EmployeeCatalog({
                     {product.manufacturer}
                   </p>
                   <h2 className="mt-2 line-clamp-2 text-sm font-semibold leading-5 sm:text-base">
-                    {product.description}
+                    {employeeProductText(locale, product.description)}
                   </h2>
                   <p className="mt-2 hidden text-xs text-slate-500 sm:block">
-                    {product.category}
+                    {employeeProductText(locale, product.category)}
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <StatusBadge status={product.availability.status} />
+                    <StatusBadge
+                      status={product.availability.status}
+                      locale={locale}
+                    />
                     <span className="text-xs font-semibold text-slate-600">
-                      {product.availability.availableQuantity} disponibles
+                      {product.availability.availableQuantity}{" "}
+                      {copy.availableUnits}
                     </span>
                   </div>
                   <div className="mt-auto pt-4">
                     <p className="text-base font-semibold">
-                      {money(product.authorizedUnitPrice)}
+                      {money(product.authorizedUnitPrice, locale)}
                     </p>
                     <p className="text-[10px] text-slate-500">
-                      Precio de venta autorizado
+                      {copy.authorizedPrice}
                     </p>
                     <button
                       type="button"
                       disabled={product.availability.availableQuantity <= 0}
                       onClick={() => {
                         draft.addProduct(product);
-                        setNotice(`${product.mpn} agregado a la cotización.`);
+                        setNotice(`${product.mpn} ${copy.added}`);
                       }}
                       className="focus-ring mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-2 text-xs font-semibold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:bg-slate-300 sm:text-sm"
                     >
                       <PackagePlus aria-hidden="true" size={17} />
-                      Agregar
+                      {copy.add}
                     </button>
                   </div>
                 </div>
@@ -367,10 +487,10 @@ export function EmployeeCatalog({
               <thead className="bg-[#062f33] text-xs uppercase tracking-wide text-white">
                 <tr>
                   <th className="px-4 py-4">MPN</th>
-                  <th className="px-4 py-4">Descripción</th>
-                  <th className="px-4 py-4">Fabricante</th>
-                  <th className="px-4 py-4">Disponibilidad</th>
-                  <th className="px-4 py-4">Precio</th>
+                  <th className="px-4 py-4">{copy.description}</th>
+                  <th className="px-4 py-4">{copy.manufacturer}</th>
+                  <th className="px-4 py-4">{copy.availability}</th>
+                  <th className="px-4 py-4">{copy.price}</th>
                   <th className="px-4 py-4" />
                 </tr>
               </thead>
@@ -381,17 +501,20 @@ export function EmployeeCatalog({
                       {product.mpn}
                     </td>
                     <td className="max-w-sm px-4 py-4">
-                      {product.description}
+                      {employeeProductText(locale, product.description)}
                     </td>
                     <td className="px-4 py-4">{product.manufacturer}</td>
                     <td className="px-4 py-4">
-                      <StatusBadge status={product.availability.status} />
+                      <StatusBadge
+                        status={product.availability.status}
+                        locale={locale}
+                      />
                       <span className="ml-2 text-xs">
                         {product.availability.availableQuantity}
                       </span>
                     </td>
                     <td className="px-4 py-4 font-semibold">
-                      {money(product.authorizedUnitPrice)}
+                      {money(product.authorizedUnitPrice, locale)}
                     </td>
                     <td className="px-4 py-4">
                       <button
@@ -400,7 +523,7 @@ export function EmployeeCatalog({
                         onClick={() => draft.addProduct(product)}
                         className="focus-ring min-h-11 rounded-lg bg-orange-600 px-4 font-semibold text-white disabled:bg-slate-300"
                       >
-                        Agregar
+                        {copy.add}
                       </button>
                     </td>
                   </tr>
@@ -412,9 +535,9 @@ export function EmployeeCatalog({
       ) : (
         <div className="rounded-xl border border-dashed border-stone-300 bg-white p-12 text-center">
           <Boxes aria-hidden="true" className="mx-auto text-slate-300" size={42} />
-          <h2 className="mt-4 text-lg font-semibold">No encontramos productos</h2>
+          <h2 className="mt-4 text-lg font-semibold">{copy.noProducts}</h2>
           <p className="mt-2 text-sm text-slate-500">
-            Ajusta la búsqueda o elimina alguno de los filtros.
+            {copy.noProductsBody}
           </p>
         </div>
       )}
@@ -429,7 +552,7 @@ export function EmployeeCatalog({
             disabled={loading}
             className="focus-ring min-h-12 rounded-lg border border-stone-300 bg-white px-6 font-semibold"
           >
-            {loading ? "Cargando…" : "Cargar más productos"}
+            {loading ? copy.loadingMore : copy.loadMore}
           </button>
         </div>
       ) : null}

@@ -12,8 +12,71 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CommerceClientError } from "@/lib/platform-api/client";
+import { employeeCopy } from "@/lib/platform-api/employee-i18n";
 import type { Quote, Reservation } from "@/lib/platform-api/types";
 import { useQuoteDraft } from "./QuoteDraftProvider";
+
+function actionsCopy(locale: string) {
+  return employeeCopy(locale, {
+    es: {
+      duplicate: "Duplicar",
+      offlineReserve: "Sin conexión. Verifica la disponibilidad antes de confirmar.",
+      reserveError: "No fue posible solicitar la reserva.",
+      verifying: "Verificando…",
+      reserve: "Reservar productos",
+      affected: "Productos afectados",
+      refreshInventory: "Actualizar inventario",
+      sendError: "No fue posible enviar la cotización.",
+      sending: "Enviando…",
+      markSent: "Marcar como enviada",
+      offlineOrder: "Sin conexión: no se puede confirmar un pedido.",
+      orderError: "No fue posible confirmar el pedido.",
+      confirming: "Confirmando…",
+      confirmOrder: "Confirmar pedido",
+      cancelError: "No fue posible cancelar la reserva.",
+      cancelling: "Cancelando…",
+      cancelReservation: "Cancelar reserva",
+    },
+    en: {
+      duplicate: "Duplicate",
+      offlineReserve: "Offline. Verify availability before confirming.",
+      reserveError: "Unable to request the reservation.",
+      verifying: "Verifying…",
+      reserve: "Reserve products",
+      affected: "Affected products",
+      refreshInventory: "Refresh inventory",
+      sendError: "Unable to send the quote.",
+      sending: "Sending…",
+      markSent: "Mark as sent",
+      offlineOrder: "Offline: the order cannot be confirmed.",
+      orderError: "Unable to confirm the order.",
+      confirming: "Confirming…",
+      confirmOrder: "Confirm order",
+      cancelError: "Unable to cancel the reservation.",
+      cancelling: "Cancelling…",
+      cancelReservation: "Cancel reservation",
+    },
+    zh: {
+      duplicate: "复制",
+      offlineReserve: "当前离线。确认前请核实库存。",
+      reserveError: "无法申请预留。",
+      verifying: "正在验证…",
+      reserve: "预留产品",
+      affected: "受影响的产品",
+      refreshInventory: "更新库存",
+      sendError: "无法发送报价。",
+      sending: "正在发送…",
+      markSent: "标记为已发送",
+      offlineOrder: "当前离线：无法确认订单。",
+      orderError: "无法确认订单。",
+      confirming: "正在确认…",
+      confirmOrder: "确认订单",
+      cancelError: "无法取消预留。",
+      cancelling: "正在取消…",
+      cancelReservation: "取消预留",
+    },
+  });
+}
 
 async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`/api/employee${path}`, {
@@ -45,6 +108,7 @@ export function DuplicateQuoteButton({
 }) {
   const router = useRouter();
   const draft = useQuoteDraft();
+  const copy = actionsCopy(locale);
 
   function duplicate() {
     draft.clear();
@@ -81,7 +145,7 @@ export function DuplicateQuoteButton({
       className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white px-4 font-semibold"
     >
       <Copy aria-hidden="true" size={18} />
-      Duplicar
+      {copy.duplicate}
     </button>
   );
 }
@@ -97,11 +161,12 @@ export function ReserveQuoteButton({
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
   const [conflict, setConflict] = useState<string[]>([]);
+  const copy = actionsCopy(locale);
 
   async function reserve() {
     if (!navigator.onLine) {
       setMessage(
-        "Sin conexión. La disponibilidad debe verificarse antes de confirmar.",
+        copy.offlineReserve,
       );
       return;
     }
@@ -133,7 +198,7 @@ export function ReserveQuoteButton({
       setMessage(
         error instanceof Error
           ? error.message
-          : "No fue posible solicitar la reserva.",
+          : copy.reserveError,
       );
     } finally {
       setPending(false);
@@ -155,7 +220,7 @@ export function ReserveQuoteButton({
         ) : (
           <PackageCheck size={19} />
         )}
-        {pending ? "Verificando…" : "Apartar productos"}
+        {pending ? copy.verifying : copy.reserve}
       </button>
       {message ? (
         <div
@@ -170,7 +235,7 @@ export function ReserveQuoteButton({
           {conflict.length ? (
             <>
               <p className="mt-2 font-semibold">
-                Productos afectados:{" "}
+                {copy.affected}:{" "}
                 {quote.items
                   .filter((item) => conflict.includes(item.productId))
                   .map((item) => item.mpn)
@@ -182,7 +247,7 @@ export function ReserveQuoteButton({
                 className="focus-ring mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-amber-400 px-4 font-semibold"
               >
                 <RefreshCw size={17} />
-                Actualizar inventario
+                {copy.refreshInventory}
               </button>
             </>
           ) : null}
@@ -192,10 +257,17 @@ export function ReserveQuoteButton({
   );
 }
 
-export function SendQuoteButton({ quote }: { quote: Quote }) {
+export function SendQuoteButton({
+  quote,
+  locale,
+}: {
+  quote: Quote;
+  locale: string;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const copy = actionsCopy(locale);
 
   async function send() {
     setPending(true);
@@ -207,7 +279,7 @@ export function SendQuoteButton({ quote }: { quote: Quote }) {
       setMessage(
         error instanceof Error
           ? error.message
-          : "No fue posible enviar la cotización.",
+          : copy.sendError,
       );
     } finally {
       setPending(false);
@@ -223,7 +295,7 @@ export function SendQuoteButton({ quote }: { quote: Quote }) {
         className="focus-ring inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#062f33] px-4 font-semibold text-white disabled:bg-slate-300"
       >
         <Send aria-hidden="true" size={18} />
-        {pending ? "Enviando…" : "Marcar como enviada"}
+        {pending ? copy.sending : copy.markSent}
       </button>
       {message ? (
         <p className="mt-2 text-sm text-red-700" role="alert">
@@ -244,10 +316,11 @@ export function ConfirmOrderButton({
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const copy = actionsCopy(locale);
 
   async function confirm() {
     if (!navigator.onLine) {
-      setMessage("Sin conexión: no se puede confirmar un pedido.");
+      setMessage(copy.offlineOrder);
       return;
     }
     setPending(true);
@@ -263,7 +336,7 @@ export function ConfirmOrderButton({
       setMessage(
         error instanceof Error
           ? error.message
-          : "No fue posible confirmar el pedido.",
+          : copy.orderError,
       );
     } finally {
       setPending(false);
@@ -283,7 +356,7 @@ export function ConfirmOrderButton({
         ) : (
           <ShoppingBag size={19} />
         )}
-        {pending ? "Confirmando…" : "Confirmar pedido demo"}
+        {pending ? copy.confirming : copy.confirmOrder}
       </button>
       {message ? (
         <p
@@ -299,12 +372,15 @@ export function ConfirmOrderButton({
 
 export function CancelReservationButton({
   reservation,
+  locale,
 }: {
   reservation: Reservation;
+  locale: string;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const copy = actionsCopy(locale);
 
   async function cancel() {
     setPending(true);
@@ -316,7 +392,7 @@ export function CancelReservationButton({
       setMessage(
         error instanceof Error
           ? error.message
-          : "No fue posible cancelar la reserva.",
+          : copy.cancelError,
       );
     } finally {
       setPending(false);
@@ -335,7 +411,7 @@ export function CancelReservationButton({
         className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-5 font-semibold text-red-700 disabled:text-slate-400"
       >
         <XCircle aria-hidden="true" size={19} />
-        {pending ? "Cancelando…" : "Cancelar reserva"}
+        {pending ? copy.cancelling : copy.cancelReservation}
       </button>
       {message ? (
         <p className="mt-3 text-sm text-red-700" role="alert">

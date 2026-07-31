@@ -297,7 +297,7 @@ try {
       element.dispatchEvent(new Event("input", { bubbles: true }));
       element.dispatchEvent(new Event("change", { bubbles: true }));
     };
-    setValue(document.querySelector('input[name=email]'), "empleado1@quiksol.local");
+    setValue(document.querySelector('input[name=email]'), "sebastiasc01@gmail.com");
     setValue(document.querySelector('input[name=password]'), ${JSON.stringify(
       password,
     )});
@@ -309,8 +309,23 @@ try {
     "employee dashboard after login",
   );
   await waitFor(
-    "document.body.innerText.toLocaleLowerCase().includes('panel del vendedor')",
+    "document.body.innerText.toLocaleLowerCase().includes('panel comercial')",
     "dashboard content",
+  );
+  await evaluate(`document.querySelector('a[aria-label="English"]').click()`);
+  await waitFor(
+    "location.pathname === '/en/employee' && document.body.innerText.toLocaleLowerCase().includes('commercial dashboard')",
+    "English employee dashboard",
+  );
+  await evaluate(`document.querySelector('a[aria-label="中文"]').click()`);
+  await waitFor(
+    "location.pathname === '/zh/employee' && document.body.innerText.includes('商务仪表板')",
+    "Chinese employee dashboard",
+  );
+  await evaluate(`document.querySelector('a[aria-label="Español"]').click()`);
+  await waitFor(
+    "location.pathname === '/es/employee' && document.body.innerText.toLocaleLowerCase().includes('panel comercial')",
+    "Spanish employee dashboard",
   );
   const dashboardScreenshot = await capture("ipad-portrait-dashboard.png");
 
@@ -321,7 +336,7 @@ try {
     return true;
   })()`);
   await waitFor(
-    "location.pathname === '/es/employee/catalog' && document.body.innerText.includes('48 productos sintéticos')",
+    "location.pathname === '/es/employee/catalog' && document.body.innerText.includes('48 productos')",
     "catalog with 48 products",
   );
   const catalogSummary = await evaluate(`(() => {
@@ -398,7 +413,7 @@ try {
       items: quantities.length,
       customer: document.querySelector("form select")?.value || "",
       warning: document.body.innerText.includes(
-        "Esta cotización no garantiza disponibilidad"
+        "La disponibilidad se confirma"
       ),
       overflow: document.documentElement.scrollWidth > window.innerWidth + 1
     };
@@ -414,14 +429,14 @@ try {
   await sleep(300);
   await evaluate(`(() => {
     const button = [...document.querySelectorAll("button")].find(
-      (item) => item.textContent.includes("Guardar borrador")
+      (item) => item.textContent.includes("Guardar cotización")
     );
     if (!button) throw new Error("Save quote button not found");
     button.click();
     return true;
   })()`);
   await waitFor(
-    "location.pathname.includes('/es/employee/quotes/demo-quote-') && document.body.innerText.includes('Apartar productos')",
+    "location.pathname.includes('/es/employee/quotes/demo-quote-') && document.body.innerText.includes('Reservar productos')",
     "saved quote detail",
   );
 
@@ -435,11 +450,13 @@ try {
       pdfStatus: response.status,
       pdfType: response.headers.get("content-type"),
       pdfSize: (await response.arrayBuffer()).byteLength,
-      quoteNumber: text.match(/COT-DEMO-\\d{4}/)?.[0] || ""
+      quoteNumber: text.match(/COT-\\d{4}/)?.[0] || "",
+      sellerEmailPresent: text.includes("sebastiasc01@gmail.com")
     }));
   })()`);
   if (
     !quoteDetail.selectedPresent ||
+    !quoteDetail.sellerEmailPresent ||
     quoteDetail.pdfStatus !== 200 ||
     quoteDetail.pdfType !== "application/pdf" ||
     quoteDetail.pdfSize < 1000
@@ -449,18 +466,18 @@ try {
 
   await evaluate(`(() => {
     const button = [...document.querySelectorAll("button")].find(
-      (item) => item.textContent.includes("Apartar productos")
+      (item) => item.textContent.includes("Reservar productos")
     );
     if (!button) throw new Error("Reserve button not found");
     button.click();
     return true;
   })()`);
   await waitFor(
-    "location.pathname.includes('/es/employee/reservations/demo-reservation-') && document.body.innerText.includes('Confirmar pedido demo')",
-    "active demo reservation",
+    "location.pathname.includes('/es/employee/reservations/demo-reservation-') && document.body.innerText.includes('Confirmar pedido')",
+    "active reservation",
   );
   const reservationSummary = await evaluate(`({
-    number: document.body.innerText.match(/RES-DEMO-\\d{4}/)?.[0] || "",
+    number: document.body.innerText.match(/RES-\\d{4}/)?.[0] || "",
     expiry: document.body.innerText.includes("vence"),
     selectedPresent: ${JSON.stringify(
       catalogSummary.selected,
@@ -476,18 +493,18 @@ try {
 
   await evaluate(`(() => {
     const button = [...document.querySelectorAll("button")].find(
-      (item) => item.textContent.includes("Confirmar pedido demo")
+      (item) => item.textContent.includes("Confirmar pedido")
     );
-    if (!button) throw new Error("Confirm demo order button not found");
+    if (!button) throw new Error("Confirm order button not found");
     button.click();
     return true;
   })()`);
   await waitFor(
     "location.pathname.includes('/es/employee/orders/demo-order-') && document.body.innerText.includes('Descargar recibo PDF')",
-    "confirmed demo order",
+    "confirmed order",
   );
   const orderSummary = await evaluate(`({
-    number: document.body.innerText.match(/PED-DEMO-\\d{4}/)?.[0] || "",
+    number: document.body.innerText.match(/PED-\\d{4}/)?.[0] || "",
     selectedPresent: ${JSON.stringify(
       catalogSummary.selected,
     )}.every((mpn) => document.body.innerText.includes(mpn))
@@ -514,18 +531,18 @@ try {
   })()`);
   await waitFor(
     "location.pathname.includes('/es/employee/receipts/demo-receipt-') && document.body.innerText.includes('DOCUMENTO DE PRUEBA')",
-    "demo receipt",
+    "receipt",
   );
   const receiptSummary = await evaluate(`(() => {
     const text = document.body.innerText;
     const pdfLink = document.querySelector('a[href*="/api/employee/orders/"][href$="/receipt"]');
     return Promise.resolve(fetch(pdfLink.href)).then(async (response) => ({
-      receiptNumber: text.match(/REC-DEMO-\\d{4}/)?.[0] || "",
-      quoteNumber: text.match(/COT-DEMO-\\d{4}/)?.[0] || "",
+      receiptNumber: text.match(/REC-\\d{4}/)?.[0] || "",
+      quoteNumber: text.match(/COT-\\d{4}/)?.[0] || "",
       mark: text.includes("DOCUMENTO DE PRUEBA — SIN VALIDEZ COMERCIAL"),
       bannerRemoved: !text.includes("MODO DEMOSTRACIÓN — Datos sintéticos"),
       resetVisible: text.includes("Reiniciar datos de demostración"),
-      orderConfirmed: text.includes("confirmed"),
+      orderConfirmed: text.includes("Confirmado"),
       pdfStatus: response.status,
       pdfType: response.headers.get("content-type"),
       pdfSize: (await response.arrayBuffer()).byteLength,
@@ -537,7 +554,7 @@ try {
     receiptSummary.quoteNumber !== quoteDetail.quoteNumber ||
     !receiptSummary.mark ||
     !receiptSummary.bannerRemoved ||
-    !receiptSummary.resetVisible ||
+    receiptSummary.resetVisible ||
     !receiptSummary.orderConfirmed ||
     receiptSummary.pdfStatus !== 200 ||
     receiptSummary.pdfType !== "application/pdf" ||

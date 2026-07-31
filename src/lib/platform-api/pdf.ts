@@ -20,8 +20,16 @@ type BrandedPdfInput = {
   quoteNumber?: string;
   date: string;
   seller: string;
+  sellerEmail?: string;
   customer: string;
+  customerContact?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  taxId?: string;
   address?: string;
+  deliveryRecipient?: string;
+  deliveryContact?: string;
+  purchaseOrderReference?: string;
   currency: string;
   rows: PdfRow[];
   subtotal: number;
@@ -104,18 +112,65 @@ export async function createBrandedPdf(input: BrandedPdfInput) {
     }
     identityY -= 18;
   }
-  commands.push(
-    textCommand(`Vendedor: ${input.seller}`, 42, identityY, 10),
-    textCommand(`Cliente: ${input.customer}`, 42, identityY - 18, 10),
-  );
-
-  if (input.address) {
+  commands.push(textCommand(`Vendedor: ${input.seller}`, 42, identityY, 10));
+  identityY -= 18;
+  if (input.sellerEmail) {
     commands.push(
-      textCommand(`Dirección: ${input.address}`, 42, identityY - 36, 9),
+      textCommand(`Correo del vendedor: ${input.sellerEmail}`, 42, identityY, 9),
     );
+    identityY -= 18;
+  }
+  commands.push(textCommand(`Cliente: ${input.customer}`, 42, identityY, 10));
+  identityY -= 18;
+  if (input.customerContact) {
+    commands.push(
+      textCommand(`Contacto: ${input.customerContact}`, 42, identityY, 9),
+    );
+    identityY -= 18;
+  }
+  if (input.customerEmail || input.customerPhone) {
+    commands.push(
+      textCommand(
+        `Email / teléfono: ${input.customerEmail || "—"} / ${input.customerPhone || "—"}`,
+        42,
+        identityY,
+        9,
+      ),
+    );
+    identityY -= 18;
+  }
+  if (input.taxId) {
+    commands.push(textCommand(`ID fiscal: ${input.taxId}`, 42, identityY, 9));
+    identityY -= 18;
+  }
+  if (input.address) {
+    commands.push(textCommand(`Dirección: ${input.address}`, 42, identityY, 9));
+    identityY -= 18;
+  }
+  if (input.deliveryRecipient || input.deliveryContact) {
+    commands.push(
+      textCommand(
+        `Entrega: ${input.deliveryRecipient || "—"} · ${input.deliveryContact || "—"}`,
+        42,
+        identityY,
+        9,
+      ),
+    );
+    identityY -= 18;
+  }
+  if (input.purchaseOrderReference) {
+    commands.push(
+      textCommand(
+        `Referencia de compra: ${input.purchaseOrderReference}`,
+        42,
+        identityY,
+        9,
+      ),
+    );
+    identityY -= 18;
   }
 
-  const tableTop = input.address ? identityY - 65 : identityY - 47;
+  const tableTop = identityY - 29;
   commands.push(
     "0.03 0.18 0.2 rg",
     `42 ${tableTop} 514 24 re f`,
@@ -129,7 +184,7 @@ export async function createBrandedPdf(input: BrandedPdfInput) {
   );
 
   let y = tableTop - 18;
-  input.rows.slice(0, 14).forEach((row, index) => {
+  input.rows.slice(0, 10).forEach((row, index) => {
     if (index % 2 === 0) {
       commands.push(`0.97 0.96 0.94 rg 42 ${y - 5} 514 18 re f`, "0 0 0 rg");
     }

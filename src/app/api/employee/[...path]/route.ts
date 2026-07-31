@@ -193,12 +193,30 @@ export async function GET(request: NextRequest, context: RouteContext) {
     if (parts[0] === "quotes" && parts[1] && parts[2] === "pdf") {
       const quote = await downloadQuotePdf(session, parts[1]);
       const pdf = await createBrandedPdf({
-        documentTitle: "COTIZACIÓN DE DEMOSTRACIÓN",
-        statusText: "Cotización — inventario sujeto a confirmación",
+        documentTitle: "COTIZACIÓN COMERCIAL",
+        statusText: "Disponibilidad sujeta a confirmación",
         number: quote.number,
         date: quote.createdAt.slice(0, 10),
         seller: quote.sellerName,
+        sellerEmail: quote.sellerEmail,
         customer: quote.customer.companyOrName,
+        customerContact: quote.customer.contact,
+        customerEmail: quote.customer.email,
+        customerPhone: quote.customer.phone,
+        taxId: quote.customer.taxId,
+        address: [
+          quote.customer.address,
+          quote.customer.addressLine2,
+          quote.customer.city,
+          quote.customer.stateOrProvince,
+          quote.customer.postalCode,
+          quote.customer.country,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        deliveryRecipient: quote.customer.deliveryRecipient,
+        deliveryContact: `${quote.customer.deliveryEmail} / ${quote.customer.deliveryPhone}`,
+        purchaseOrderReference: quote.customer.purchaseOrderReference,
         currency: quote.currency,
         rows: quote.items.map((item) => ({
           mpn: item.mpn,
@@ -239,15 +257,32 @@ export async function GET(request: NextRequest, context: RouteContext) {
       const receipt = await downloadReceiptPdf(session, parts[1]);
       const order = receipt.order;
       const pdf = await createBrandedPdf({
-        documentTitle: "RECIBO DE DEMOSTRACIÓN",
-        statusText: "Pedido demo confirmado",
+        documentTitle: "RECIBO COMERCIAL",
+        statusText: "Pedido confirmado",
         number: receipt.number,
         orderNumber: order.number,
         quoteNumber: order.quoteNumber,
         date: receipt.issuedAt.slice(0, 10),
         seller: order.sellerName,
+        sellerEmail: order.sellerEmail,
         customer: order.customer.companyOrName,
-        address: `${order.customer.address}, ${order.customer.city}, ${order.customer.country}`,
+        customerContact: order.customer.contact,
+        customerEmail: order.customer.email,
+        customerPhone: order.customer.phone,
+        taxId: order.customer.taxId,
+        address: [
+          order.customer.address,
+          order.customer.addressLine2,
+          order.customer.city,
+          order.customer.stateOrProvince,
+          order.customer.postalCode,
+          order.customer.country,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        deliveryRecipient: order.customer.deliveryRecipient,
+        deliveryContact: `${order.customer.deliveryEmail} / ${order.customer.deliveryPhone}`,
+        purchaseOrderReference: order.customer.purchaseOrderReference,
         currency: order.currency,
         rows: order.items.map((item) => ({
           mpn: item.mpn,
@@ -261,7 +296,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         total: order.total,
         paymentStatus: order.paymentStatus,
         verificationReference: receipt.verificationReference,
-        terms: "Documento emitido para un pedido confirmado por el backend mock.",
+        terms: "Documento emitido para un pedido confirmado.",
         mock: receipt.mock,
       });
       return new NextResponse(new Uint8Array(pdf), {

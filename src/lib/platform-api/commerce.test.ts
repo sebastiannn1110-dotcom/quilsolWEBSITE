@@ -39,7 +39,7 @@ const sessions = {
   admin: {
     userId: "employee-admin-demo",
     email: "adminuser1@quiksol.local",
-    fullName: "prueba admin",
+    fullName: "Administrador Quiksol",
     role: "admin",
     expiresAt: "2099-01-01T00:00:00.000Z",
     provider: "mock",
@@ -47,7 +47,7 @@ const sessions = {
   manager: {
     userId: "employee-manager-demo",
     email: "manager1@quiksol.local",
-    fullName: "prueba manger",
+    fullName: "Manager Comercial",
     role: "manager",
     expiresAt: "2099-01-01T00:00:00.000Z",
     provider: "mock",
@@ -55,7 +55,7 @@ const sessions = {
   employee: {
     userId: "employee-sales-demo",
     email: "empleado1@quiksol.local",
-    fullName: "prueba empleado",
+    fullName: "Asesor Comercial",
     role: "employee",
     expiresAt: "2099-01-01T00:00:00.000Z",
     provider: "mock",
@@ -73,6 +73,7 @@ describe("autenticación mock", () => {
     ["adminuser1@quiksol.local", "admin"],
     ["manager1@quiksol.local", "manager"],
     ["empleado1@quiksol.local", "employee"],
+    ["sebastiasc01@gmail.com", "employee"],
   ])("autentica %s con rol %s", (email, role) => {
     expect(verifyMockEmployeeCredentials(email, testPassword).role).toBe(role);
   });
@@ -384,7 +385,7 @@ describe("continuidad temporal de la demostración", () => {
     const result = resetMockStore();
     expect(result).toMatchObject({
       products: 48,
-      customers: 3,
+      customers: 4,
       quotes: 1,
       reservations: 1,
       orders: 1,

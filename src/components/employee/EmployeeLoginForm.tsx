@@ -5,6 +5,8 @@ import { Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { commerceClient } from "@/lib/platform-api/client";
+import { employeeCopy } from "@/lib/platform-api/employee-i18n";
+import { EmployeeLanguageSwitcher } from "./EmployeeLanguageSwitcher";
 
 export function EmployeeLoginForm({
   locale,
@@ -15,6 +17,50 @@ export function EmployeeLoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const copy = employeeCopy(locale, {
+    es: {
+      area: "Área comercial",
+      hero: "Cotiza, aparta y acompaña cada venta.",
+      title: "Iniciar sesión",
+      body: "Acceso exclusivo para empleados y vendedores.",
+      email: "Usuario o email",
+      password: "Contraseña",
+      hide: "Ocultar contraseña",
+      show: "Mostrar contraseña",
+      remember: "Recordar sesión",
+      validating: "Validando…",
+      submit: "Entrar al área comercial",
+      error: "No fue posible iniciar sesión.",
+    },
+    en: {
+      area: "Commercial workspace",
+      hero: "Quote, reserve and support every sale.",
+      title: "Sign in",
+      body: "Exclusive access for employees and sales representatives.",
+      email: "Username or email",
+      password: "Password",
+      hide: "Hide password",
+      show: "Show password",
+      remember: "Remember me",
+      validating: "Signing in…",
+      submit: "Enter commercial workspace",
+      error: "Unable to sign in.",
+    },
+    zh: {
+      area: "商务工作区",
+      hero: "报价、预留并跟进每一笔销售。",
+      title: "登录",
+      body: "仅限员工和销售代表访问。",
+      email: "用户名或电子邮箱",
+      password: "密码",
+      hide: "隐藏密码",
+      show: "显示密码",
+      remember: "记住登录状态",
+      validating: "正在登录…",
+      submit: "进入商务工作区",
+      error: "无法登录。",
+    },
+  });
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,7 +80,7 @@ export function EmployeeLoginForm({
       setMessage(
         error instanceof Error
           ? error.message
-          : "No fue posible iniciar sesión.",
+          : copy.error,
       );
     } finally {
       setPending(false);
@@ -62,16 +108,19 @@ export function EmployeeLoginForm({
         />
         <div className="relative max-w-xl">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-300">
-            Área comercial
+            {copy.area}
           </p>
           <h1 className="mt-4 text-5xl font-semibold leading-tight">
-            Cotiza, aparta y acompaña cada venta.
+            {copy.hero}
           </h1>
         </div>
       </section>
 
       <section className="flex min-h-dvh items-center justify-center p-5 sm:p-10">
         <div className="w-full max-w-md">
+          <div className="mb-5 flex justify-end">
+            <EmployeeLanguageSwitcher locale={locale} />
+          </div>
           <Image
             src="/logos/quicksol-logo.svg"
             alt="Quiksol"
@@ -85,10 +134,10 @@ export function EmployeeLoginForm({
               <LockKeyhole aria-hidden="true" />
             </div>
             <h2 className="mt-6 text-3xl font-semibold text-slate-950">
-              Iniciar sesión
+              {copy.title}
             </h2>
             <p className="mt-2 leading-7 text-slate-600">
-              Acceso exclusivo para empleados y vendedores.
+              {copy.body}
             </p>
 
             <form
@@ -98,7 +147,7 @@ export function EmployeeLoginForm({
               onSubmit={submit}
             >
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                Usuario o email
+                {copy.email}
                 <input
                   name="email"
                   type="email"
@@ -108,7 +157,7 @@ export function EmployeeLoginForm({
                 />
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                Contraseña
+                {copy.password}
                 <span className="relative">
                   <input
                     name="password"
@@ -122,7 +171,7 @@ export function EmployeeLoginForm({
                     onClick={() => setShowPassword((value) => !value)}
                     className="focus-ring absolute right-1 top-1 inline-flex h-10 w-10 items-center justify-center rounded-md text-slate-600"
                     aria-label={
-                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                      showPassword ? copy.hide : copy.show
                     }
                   >
                     {showPassword ? (
@@ -139,7 +188,7 @@ export function EmployeeLoginForm({
                   type="checkbox"
                   className="h-5 w-5 accent-orange-600"
                 />
-                Recordar sesión
+                {copy.remember}
               </label>
               <button
                 type="submit"
@@ -153,7 +202,7 @@ export function EmployeeLoginForm({
                     size={19}
                   />
                 ) : null}
-                {pending ? "Validando…" : "Entrar al área comercial"}
+                {pending ? copy.validating : copy.submit}
               </button>
               {message ? (
                 <p

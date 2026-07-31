@@ -8,6 +8,11 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { can } from "@/lib/platform-api/permissions";
+import {
+  employeeCopy,
+  employeeIntlLocale,
+  employeeProductText,
+} from "@/lib/platform-api/employee-i18n";
 import type {
   EmployeeSession,
   Order,
@@ -24,21 +29,177 @@ import {
   SendQuoteButton,
 } from "./CommerceActions";
 
-function money(value: number) {
-  return new Intl.NumberFormat("es-CO", {
+function money(value: number, locale: string) {
+  return new Intl.NumberFormat(employeeIntlLocale(locale), {
     style: "currency",
     currency: "USD",
   }).format(value);
 }
 
-function date(value: string) {
-  return new Intl.DateTimeFormat("es-CO", {
+function date(value: string, locale: string) {
+  return new Intl.DateTimeFormat(employeeIntlLocale(locale), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
 }
 
-function EmptyRecord({ label }: { label: string }) {
+function recordsCopy(locale: string) {
+  return employeeCopy(locale, {
+    es: {
+      emptyPrefix: "Sin",
+      emptyBody: "Los nuevos registros aparecerán aquí después de ser confirmados.",
+      quotes: "Cotizaciones",
+      history: "Historial comercial",
+      historyBody: "Consulta borradores, documentos enviados y cotizaciones convertidas.",
+      newQuote: "Nueva cotización",
+      number: "Número",
+      customer: "Cliente",
+      seller: "Vendedor",
+      date: "Fecha",
+      total: "Total",
+      status: "Estado",
+      quote: "Cotización",
+      backQuotes: "Volver a cotizaciones",
+      description: "Descripción",
+      quantity: "Cantidad",
+      unit: "Unitario",
+      discount: "Descuento",
+      subtotal: "Subtotal",
+      notes: "Notas",
+      noNotes: "Sin notas.",
+      terms: "Términos",
+      taxes: "Impuestos",
+      availability: "La disponibilidad se confirma cuando los productos son reservados.",
+      downloadPdf: "Descargar PDF",
+      sharedInventory: "Inventario compartido",
+      reservations: "Reservas",
+      reservationsBody: "Revisa reservas activas, parciales, vencidas o convertidas en pedido.",
+      products: "productos",
+      reservation: "Reserva",
+      backReservations: "Volver a reservas",
+      expires: "vence",
+      partial: "Esta reserva es parcial. Revisa los productos afectados antes de continuar.",
+      requested: "Solicitado",
+      reserved: "Reservado",
+      sales: "Ventas",
+      orders: "Pedidos",
+      ordersBody: "Consulta pedidos confirmados y su estado de pago.",
+      order: "Pedido",
+      backOrders: "Volver a pedidos",
+      viewReceipt: "Ver recibo",
+      downloadReceipt: "Descargar recibo PDF",
+      receiptPending: "El recibo estará disponible cuando el pedido sea confirmado.",
+      receipt: "Recibo",
+      backOrder: "Volver al pedido",
+      quoteLabel: "Cotización",
+      verification: "Referencia verificable",
+      download: "Descargar PDF",
+    },
+    en: {
+      emptyPrefix: "No",
+      emptyBody: "New records will appear here after confirmation.",
+      quotes: "Quotes",
+      history: "Commercial history",
+      historyBody: "Review drafts, sent documents and converted quotes.",
+      newQuote: "New quote",
+      number: "Number",
+      customer: "Customer",
+      seller: "Seller",
+      date: "Date",
+      total: "Total",
+      status: "Status",
+      quote: "Quote",
+      backQuotes: "Back to quotes",
+      description: "Description",
+      quantity: "Quantity",
+      unit: "Unit price",
+      discount: "Discount",
+      subtotal: "Subtotal",
+      notes: "Notes",
+      noNotes: "No notes.",
+      terms: "Terms",
+      taxes: "Taxes",
+      availability: "Availability is confirmed when products are reserved.",
+      downloadPdf: "Download PDF",
+      sharedInventory: "Shared inventory",
+      reservations: "Reservations",
+      reservationsBody: "Review active, partial, expired or converted reservations.",
+      products: "products",
+      reservation: "Reservation",
+      backReservations: "Back to reservations",
+      expires: "expires",
+      partial: "This reservation is partial. Review affected items before continuing.",
+      requested: "Requested",
+      reserved: "Reserved",
+      sales: "Sales",
+      orders: "Orders",
+      ordersBody: "Review confirmed orders and payment status.",
+      order: "Order",
+      backOrders: "Back to orders",
+      viewReceipt: "View receipt",
+      downloadReceipt: "Download receipt PDF",
+      receiptPending: "The receipt will be available once the order is confirmed.",
+      receipt: "Receipt",
+      backOrder: "Back to order",
+      quoteLabel: "Quote",
+      verification: "Verification reference",
+      download: "Download PDF",
+    },
+    zh: {
+      emptyPrefix: "暂无",
+      emptyBody: "确认后的新记录将显示在这里。",
+      quotes: "报价",
+      history: "商务记录",
+      historyBody: "查看草稿、已发送文件和已转换报价。",
+      newQuote: "新建报价",
+      number: "编号",
+      customer: "客户",
+      seller: "销售人员",
+      date: "日期",
+      total: "合计",
+      status: "状态",
+      quote: "报价",
+      backQuotes: "返回报价",
+      description: "描述",
+      quantity: "数量",
+      unit: "单价",
+      discount: "折扣",
+      subtotal: "小计",
+      notes: "备注",
+      noNotes: "无备注。",
+      terms: "条款",
+      taxes: "税费",
+      availability: "产品预留时确认库存。",
+      downloadPdf: "下载 PDF",
+      sharedInventory: "共享库存",
+      reservations: "预留",
+      reservationsBody: "查看有效、部分、过期或已转订单的预留。",
+      products: "件产品",
+      reservation: "预留",
+      backReservations: "返回预留",
+      expires: "到期",
+      partial: "此预留不完整。继续前请检查受影响的产品。",
+      requested: "申请数量",
+      reserved: "预留数量",
+      sales: "销售",
+      orders: "订单",
+      ordersBody: "查看已确认订单及付款状态。",
+      order: "订单",
+      backOrders: "返回订单",
+      viewReceipt: "查看收据",
+      downloadReceipt: "下载收据 PDF",
+      receiptPending: "订单确认后可查看收据。",
+      receipt: "收据",
+      backOrder: "返回订单",
+      quoteLabel: "报价",
+      verification: "验证参考",
+      download: "下载 PDF",
+    },
+  });
+}
+
+function EmptyRecord({ label, locale }: { label: string; locale: string }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="rounded-xl border border-dashed border-stone-300 bg-white p-12 text-center">
       <FileText
@@ -46,10 +207,11 @@ function EmptyRecord({ label }: { label: string }) {
         className="mx-auto text-slate-300"
         size={42}
       />
-      <h2 className="mt-4 text-lg font-semibold">Sin {label}</h2>
+      <h2 className="mt-4 text-lg font-semibold">
+        {copy.emptyPrefix} {label}
+      </h2>
       <p className="mt-2 text-sm text-slate-500">
-        Los nuevos registros aparecerán aquí después de ser confirmados por la
-        API mock.
+        {copy.emptyBody}
       </p>
     </div>
   );
@@ -62,18 +224,19 @@ export function QuoteList({
   quotes: Quote[];
   locale: string;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <EmployeePageHeader
-        eyebrow="Cotizaciones"
-        title="Historial comercial"
-        body="Consulta borradores, documentos enviados y cotizaciones convertidas."
+        eyebrow={copy.quotes}
+        title={copy.history}
+        body={copy.historyBody}
         actions={
           <Link
             href={`/${locale}/employee/quotes/new`}
             className="focus-ring inline-flex min-h-12 items-center justify-center rounded-lg bg-orange-600 px-5 font-semibold text-white"
           >
-            Nueva cotización
+            {copy.newQuote}
           </Link>
         }
       />
@@ -82,12 +245,12 @@ export function QuoteList({
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-[#062f33] text-xs uppercase text-white">
               <tr>
-                <th className="px-5 py-4">Número</th>
-                <th className="px-5 py-4">Cliente</th>
-                <th className="px-5 py-4">Vendedor</th>
-                <th className="px-5 py-4">Fecha</th>
-                <th className="px-5 py-4">Total</th>
-                <th className="px-5 py-4">Estado</th>
+                <th className="px-5 py-4">{copy.number}</th>
+                <th className="px-5 py-4">{copy.customer}</th>
+                <th className="px-5 py-4">{copy.seller}</th>
+                <th className="px-5 py-4">{copy.date}</th>
+                <th className="px-5 py-4">{copy.total}</th>
+                <th className="px-5 py-4">{copy.status}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -105,12 +268,14 @@ export function QuoteList({
                     {quote.customer.companyOrName}
                   </td>
                   <td className="px-5 py-4">{quote.sellerName}</td>
-                  <td className="px-5 py-4">{date(quote.createdAt)}</td>
+                  <td className="px-5 py-4">
+                    {date(quote.createdAt, locale)}
+                  </td>
                   <td className="px-5 py-4 font-semibold">
-                    {money(quote.total)}
+                    {money(quote.total, locale)}
                   </td>
                   <td className="px-5 py-4">
-                    <StatusBadge status={quote.status} />
+                    <StatusBadge status={quote.status} locale={locale} />
                   </td>
                 </tr>
               ))}
@@ -118,7 +283,7 @@ export function QuoteList({
           </table>
         </div>
       ) : (
-        <EmptyRecord label="cotizaciones" />
+        <EmptyRecord label={copy.quotes.toLocaleLowerCase()} locale={locale} />
       )}
     </div>
   );
@@ -131,19 +296,20 @@ export function QuoteDetail({
   quote: Quote;
   locale: string;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <Link
         href={`/${locale}/employee/quotes`}
         className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-600"
       >
-        <ArrowLeft size={18} /> Volver a cotizaciones
+        <ArrowLeft size={18} /> {copy.backQuotes}
       </Link>
       <EmployeePageHeader
-        eyebrow="Cotización"
+        eyebrow={copy.quote}
         title={quote.number}
-        body={`${quote.customer.companyOrName} · ${quote.sellerName}`}
-        actions={<StatusBadge status={quote.status} />}
+        body={`${quote.customer.companyOrName} · ${quote.sellerName} · ${quote.sellerEmail}`}
+        actions={<StatusBadge status={quote.status} locale={locale} />}
       />
       <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
         <section className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
@@ -152,11 +318,11 @@ export function QuoteDetail({
               <thead className="bg-stone-50 text-xs uppercase text-slate-500">
                 <tr>
                   <th className="px-5 py-4">MPN</th>
-                  <th className="px-5 py-4">Descripción</th>
-                  <th className="px-5 py-4">Cantidad</th>
-                  <th className="px-5 py-4">Unitario</th>
-                  <th className="px-5 py-4">Descuento</th>
-                  <th className="px-5 py-4">Subtotal</th>
+                  <th className="px-5 py-4">{copy.description}</th>
+                  <th className="px-5 py-4">{copy.quantity}</th>
+                  <th className="px-5 py-4">{copy.unit}</th>
+                  <th className="px-5 py-4">{copy.discount}</th>
+                  <th className="px-5 py-4">{copy.subtotal}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
@@ -165,14 +331,16 @@ export function QuoteDetail({
                     <td className="px-5 py-4 font-mono font-semibold">
                       {item.mpn}
                     </td>
-                    <td className="px-5 py-4">{item.description}</td>
+                    <td className="px-5 py-4">
+                      {employeeProductText(locale, item.description)}
+                    </td>
                     <td className="px-5 py-4">{item.quantity}</td>
                     <td className="px-5 py-4">
-                      {money(item.authorizedUnitPrice)}
+                      {money(item.authorizedUnitPrice, locale)}
                     </td>
                     <td className="px-5 py-4">{item.discountPercent}%</td>
                     <td className="px-5 py-4 font-semibold">
-                      {money(item.lineSubtotal)}
+                      {money(item.lineSubtotal, locale)}
                     </td>
                   </tr>
                 ))}
@@ -181,31 +349,32 @@ export function QuoteDetail({
           </div>
           <div className="border-t border-stone-200 p-5 text-sm leading-7 text-slate-600">
             <p>
-              <strong>Notas:</strong> {quote.notes || "Sin notas."}
+              <strong>{copy.notes}:</strong> {quote.notes || copy.noNotes}
             </p>
             <p>
-              <strong>Términos:</strong> {quote.commercialTerms}
+              <strong>{copy.terms}:</strong> {quote.commercialTerms}
             </p>
           </div>
         </section>
         <aside className="h-fit rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <dt>Subtotal</dt>
-              <dd className="font-semibold">{money(quote.subtotal)}</dd>
+              <dt>{copy.subtotal}</dt>
+              <dd className="font-semibold">
+                {money(quote.subtotal, locale)}
+              </dd>
             </div>
             <div className="flex justify-between">
-              <dt>Impuestos</dt>
-              <dd className="font-semibold">{money(quote.tax)}</dd>
+              <dt>{copy.taxes}</dt>
+              <dd className="font-semibold">{money(quote.tax, locale)}</dd>
             </div>
             <div className="flex justify-between border-t border-stone-200 pt-4 text-lg">
-              <dt className="font-semibold">Total</dt>
-              <dd className="font-bold">{money(quote.total)}</dd>
+              <dt className="font-semibold">{copy.total}</dt>
+              <dd className="font-bold">{money(quote.total, locale)}</dd>
             </div>
           </dl>
           <p className="mt-5 rounded-lg bg-amber-50 p-4 text-xs leading-5 text-amber-950">
-            Esta cotización no garantiza disponibilidad de inventario hasta que
-            los productos sean apartados.
+            {copy.availability}
           </p>
           <div className="mt-5 grid gap-3">
             <a
@@ -213,10 +382,10 @@ export function QuoteDetail({
               className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white px-4 font-semibold"
             >
               <Download size={18} />
-              Descargar PDF
+              {copy.downloadPdf}
             </a>
             <DuplicateQuoteButton quote={quote} locale={locale} />
-            <SendQuoteButton quote={quote} />
+            <SendQuoteButton quote={quote} locale={locale} />
             <ReserveQuoteButton quote={quote} locale={locale} />
           </div>
         </aside>
@@ -232,12 +401,13 @@ export function ReservationList({
   reservations: Reservation[];
   locale: string;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <EmployeePageHeader
-        eyebrow="Inventario compartido"
-        title="Reservas"
-        body="Revisa apartados activos, parciales, vencidos o convertidos en pedido."
+        eyebrow={copy.sharedInventory}
+        title={copy.reservations}
+        body={copy.reservationsBody}
       />
       {reservations.length ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -259,16 +429,19 @@ export function ReservationList({
                 {reservation.customer.companyOrName}
               </p>
               <div className="mt-4 flex items-center justify-between gap-3">
-                <StatusBadge status={reservation.status} />
+                <StatusBadge status={reservation.status} locale={locale} />
                 <span className="text-xs text-slate-500">
-                  {reservation.items.length} productos
+                  {reservation.items.length} {copy.products}
                 </span>
               </div>
             </Link>
           ))}
         </div>
       ) : (
-        <EmptyRecord label="reservas" />
+        <EmptyRecord
+          label={copy.reservations.toLocaleLowerCase()}
+          locale={locale}
+        />
       )}
     </div>
   );
@@ -283,26 +456,27 @@ export function ReservationDetail({
   locale: string;
   session: EmployeeSession;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <Link
         href={`/${locale}/employee/reservations`}
         className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-600"
       >
-        <ArrowLeft size={18} /> Volver a reservas
+        <ArrowLeft size={18} /> {copy.backReservations}
       </Link>
       <EmployeePageHeader
-        eyebrow="Reserva"
+        eyebrow={copy.reservation}
         title={reservation.number}
-        body={`${reservation.customer.companyOrName} · vence ${date(
+        body={`${reservation.customer.companyOrName} · ${copy.expires} ${date(
           reservation.expiresAt,
+          locale,
         )}`}
-        actions={<StatusBadge status={reservation.status} />}
+        actions={<StatusBadge status={reservation.status} locale={locale} />}
       />
       {reservation.affectedProductIds.length ? (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-          Esta reserva es parcial. Los productos afectados aparecen resaltados y
-          deben revisarse antes de continuar.
+          {copy.partial}
         </div>
       ) : null}
       <section className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-sm">
@@ -310,9 +484,9 @@ export function ReservationDetail({
           <thead className="bg-[#062f33] text-xs uppercase text-white">
             <tr>
               <th className="px-5 py-4">MPN</th>
-              <th className="px-5 py-4">Descripción</th>
-              <th className="px-5 py-4">Solicitado</th>
-              <th className="px-5 py-4">Apartado</th>
+              <th className="px-5 py-4">{copy.description}</th>
+              <th className="px-5 py-4">{copy.requested}</th>
+              <th className="px-5 py-4">{copy.reserved}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-100">
@@ -326,7 +500,9 @@ export function ReservationDetail({
                 }
               >
                 <td className="px-5 py-4 font-mono font-semibold">{item.mpn}</td>
-                <td className="px-5 py-4">{item.description}</td>
+                <td className="px-5 py-4">
+                  {employeeProductText(locale, item.description)}
+                </td>
                 <td className="px-5 py-4">{item.quantity}</td>
                 <td className="px-5 py-4 font-semibold">
                   {item.reservedQuantity}
@@ -339,7 +515,7 @@ export function ReservationDetail({
       <div className="flex flex-wrap gap-3">
         <ConfirmOrderButton reservation={reservation} locale={locale} />
         {can(session.role, "reservations:cancel_team") ? (
-          <CancelReservationButton reservation={reservation} />
+          <CancelReservationButton reservation={reservation} locale={locale} />
         ) : null}
       </div>
     </div>
@@ -353,12 +529,13 @@ export function OrderList({
   orders: Order[];
   locale: string;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <EmployeePageHeader
-        eyebrow="Ventas"
-        title="Pedidos"
-        body="Consulta pedidos confirmados por el backend y su estado de pago."
+        eyebrow={copy.sales}
+        title={copy.orders}
+        body={copy.ordersBody}
       />
       {orders.length ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -378,17 +555,17 @@ export function OrderList({
                 {order.customer.companyOrName}
               </p>
               <p className="mt-4 text-xl font-semibold">
-                {money(order.total)}
+                {money(order.total, locale)}
               </p>
               <div className="mt-4 flex gap-2">
-                <StatusBadge status={order.status} />
-                <StatusBadge status={order.paymentStatus} />
+                <StatusBadge status={order.status} locale={locale} />
+                <StatusBadge status={order.paymentStatus} locale={locale} />
               </div>
             </Link>
           ))}
         </div>
       ) : (
-        <EmptyRecord label="pedidos" />
+        <EmptyRecord label={copy.orders.toLocaleLowerCase()} locale={locale} />
       )}
     </div>
   );
@@ -403,19 +580,20 @@ export function OrderDetail({
   locale: string;
   receipt: Receipt | null;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <Link
         href={`/${locale}/employee/orders`}
         className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-600"
       >
-        <ArrowLeft size={18} /> Volver a pedidos
+        <ArrowLeft size={18} /> {copy.backOrders}
       </Link>
       <EmployeePageHeader
-        eyebrow="Pedido"
+        eyebrow={copy.order}
         title={order.number}
         body={`${order.customer.companyOrName} · ${order.reservationNumber}`}
-        actions={<StatusBadge status={order.status} />}
+        actions={<StatusBadge status={order.status} locale={locale} />}
       />
       <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
         <section className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-sm">
@@ -423,10 +601,10 @@ export function OrderDetail({
             <thead className="bg-[#062f33] text-xs uppercase text-white">
               <tr>
                 <th className="px-5 py-4">MPN</th>
-                <th className="px-5 py-4">Descripción</th>
-                <th className="px-5 py-4">Cantidad</th>
-                <th className="px-5 py-4">Unitario</th>
-                <th className="px-5 py-4">Subtotal</th>
+                <th className="px-5 py-4">{copy.description}</th>
+                <th className="px-5 py-4">{copy.quantity}</th>
+                <th className="px-5 py-4">{copy.unit}</th>
+                <th className="px-5 py-4">{copy.subtotal}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -435,13 +613,15 @@ export function OrderDetail({
                   <td className="px-5 py-4 font-mono font-semibold">
                     {item.mpn}
                   </td>
-                  <td className="px-5 py-4">{item.description}</td>
+                  <td className="px-5 py-4">
+                    {employeeProductText(locale, item.description)}
+                  </td>
                   <td className="px-5 py-4">{item.quantity}</td>
                   <td className="px-5 py-4">
-                    {money(item.authorizedUnitPrice)}
+                    {money(item.authorizedUnitPrice, locale)}
                   </td>
                   <td className="px-5 py-4 font-semibold">
-                    {money(item.lineSubtotal)}
+                    {money(item.lineSubtotal, locale)}
                   </td>
                 </tr>
               ))}
@@ -451,21 +631,23 @@ export function OrderDetail({
         <aside className="h-fit rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <dt>Subtotal</dt>
-              <dd className="font-semibold">{money(order.subtotal)}</dd>
+              <dt>{copy.subtotal}</dt>
+              <dd className="font-semibold">
+                {money(order.subtotal, locale)}
+              </dd>
             </div>
             <div className="flex justify-between">
-              <dt>Impuestos</dt>
-              <dd className="font-semibold">{money(order.tax)}</dd>
+              <dt>{copy.taxes}</dt>
+              <dd className="font-semibold">{money(order.tax, locale)}</dd>
             </div>
             <div className="flex justify-between border-t border-stone-200 pt-4 text-lg">
-              <dt className="font-semibold">Total</dt>
-              <dd className="font-bold">{money(order.total)}</dd>
+              <dt className="font-semibold">{copy.total}</dt>
+              <dd className="font-bold">{money(order.total, locale)}</dd>
             </div>
           </dl>
           <div className="mt-5 flex flex-wrap gap-2">
-            <StatusBadge status={order.status} />
-            <StatusBadge status={order.paymentStatus} />
+            <StatusBadge status={order.status} locale={locale} />
+            <StatusBadge status={order.paymentStatus} locale={locale} />
           </div>
           {receipt && order.status === "confirmed" ? (
             <div className="mt-5 grid gap-3">
@@ -474,20 +656,19 @@ export function OrderDetail({
                 className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 font-semibold"
               >
                 <ReceiptText size={18} />
-                Ver recibo
+                {copy.viewReceipt}
               </Link>
               <a
                 href={`/api/employee/orders/${order.id}/receipt`}
                 className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-orange-600 font-semibold text-white"
               >
                 <Download size={18} />
-                Descargar recibo PDF
+                {copy.downloadReceipt}
               </a>
             </div>
           ) : (
             <p className="mt-5 rounded-lg bg-amber-50 p-4 text-xs leading-5 text-amber-950">
-              El recibo sólo estará disponible cuando el backend confirme el
-              pedido.
+              {copy.receiptPending}
             </p>
           )}
         </aside>
@@ -503,42 +684,47 @@ export function ReceiptDetail({
   receipt: Receipt;
   locale: string;
 }) {
+  const copy = recordsCopy(locale);
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <Link
         href={`/${locale}/employee/orders/${receipt.orderId}`}
         className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-600"
       >
-        <ArrowLeft size={18} /> Volver al pedido
+        <ArrowLeft size={18} /> {copy.backOrder}
       </Link>
       <EmployeePageHeader
-        eyebrow="Recibo"
+        eyebrow={copy.receipt}
         title={receipt.number}
         body={`${receipt.orderNumber} · ${receipt.order.customer.companyOrName}`}
-        actions={<StatusBadge status={receipt.order.status} />}
+        actions={
+          <StatusBadge status={receipt.order.status} locale={locale} />
+        }
       />
       <section className="max-w-3xl rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
         <div className="grid gap-4 text-sm sm:grid-cols-2">
           <p>
-            <span className="text-slate-500">Pedido</span>
+            <span className="text-slate-500">{copy.order}</span>
             <strong className="mt-1 block">{receipt.orderNumber}</strong>
           </p>
           <p>
-            <span className="text-slate-500">Cotización</span>
+            <span className="text-slate-500">{copy.quoteLabel}</span>
             <strong className="mt-1 block">{receipt.order.quoteNumber}</strong>
           </p>
           <p>
-            <span className="text-slate-500">Fecha</span>
-            <strong className="mt-1 block">{date(receipt.issuedAt)}</strong>
+            <span className="text-slate-500">{copy.date}</span>
+            <strong className="mt-1 block">
+              {date(receipt.issuedAt, locale)}
+            </strong>
           </p>
           <p>
-            <span className="text-slate-500">Cliente</span>
+            <span className="text-slate-500">{copy.customer}</span>
             <strong className="mt-1 block">
               {receipt.order.customer.companyOrName}
             </strong>
           </p>
           <p>
-            <span className="text-slate-500">Referencia verificable</span>
+            <span className="text-slate-500">{copy.verification}</span>
             <strong className="mt-1 block font-mono">
               {receipt.verificationReference}
             </strong>
@@ -552,7 +738,7 @@ export function ReceiptDetail({
           className="focus-ring mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-orange-600 px-5 font-semibold text-white"
         >
           <Download size={18} />
-          Descargar PDF
+          {copy.download}
         </a>
       </section>
     </div>

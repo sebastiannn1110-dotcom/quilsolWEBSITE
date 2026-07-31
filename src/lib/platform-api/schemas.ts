@@ -11,14 +11,22 @@ export const employeeLoginSchema = z.object({
 
 export const customerInputSchema = z.object({
   companyOrName: cleanText(2, 160),
+  legalCompanyName: z.string().trim().max(180).optional().default(""),
   contact: cleanText(2, 120),
   email: z.string().trim().email().max(180).toLowerCase(),
   phone: cleanText(5, 30),
   country: cleanText(2, 100),
   city: cleanText(2, 100),
   address: cleanText(4, 240),
+  addressLine2: z.string().trim().max(180).optional().default(""),
+  stateOrProvince: cleanText(2, 120),
+  postalCode: cleanText(2, 24),
+  deliveryRecipient: cleanText(2, 120),
+  deliveryPhone: cleanText(5, 30),
+  deliveryEmail: z.string().trim().email().max(180).toLowerCase(),
   taxId: z.string().trim().max(80).optional().default(""),
-  preferredLanguage: z.enum(["es", "en"]),
+  purchaseOrderReference: z.string().trim().max(120).optional().default(""),
+  preferredLanguage: z.enum(["es", "en", "zh"]),
   commercialNotes: z.string().trim().max(1000).optional().default(""),
 });
 

@@ -40,14 +40,22 @@ export type Product = {
 export type Customer = {
   id: string;
   companyOrName: string;
+  legalCompanyName?: string;
   contact: string;
   email: string;
   phone: string;
   country: string;
   city: string;
   address: string;
+  addressLine2?: string;
+  stateOrProvince: string;
+  postalCode: string;
+  deliveryRecipient: string;
+  deliveryPhone: string;
+  deliveryEmail: string;
   taxId?: string;
-  preferredLanguage: "es" | "en";
+  purchaseOrderReference?: string;
+  preferredLanguage: "es" | "en" | "zh";
   commercialNotes?: string;
   createdAt: string;
   createdBy: string;
@@ -79,6 +87,7 @@ export type Quote = {
   number: string;
   sellerId: string;
   sellerName: string;
+  sellerEmail: string;
   sellerRole: EmployeeRole;
   customer: Customer;
   createdAt: string;
@@ -115,6 +124,7 @@ export type Reservation = {
   quoteNumber: string;
   sellerId: string;
   sellerName: string;
+  sellerEmail: string;
   customer: Customer;
   items: ReservationItem[];
   status: ReservationStatus;
@@ -144,6 +154,7 @@ export type Order = {
   reservationNumber: string;
   sellerId: string;
   sellerName: string;
+  sellerEmail: string;
   customer: Customer;
   items: OrderItem[];
   subtotal: number;
