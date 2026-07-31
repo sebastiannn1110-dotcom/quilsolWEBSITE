@@ -94,33 +94,16 @@ function ShellContent({
   const demoMode = session.provider === "mock";
 
   return (
-    <div
-      className={`employee-portal-root min-h-dvh bg-[#f5f3ef] text-slate-950 ${
-        demoMode ? "pt-9" : ""
-      }`}
-    >
+    <div className="employee-portal-root min-h-dvh bg-[#f5f3ef] text-slate-950">
       <PwaRegister />
-      {demoMode ? (
-        <div className="fixed inset-x-0 top-0 z-[75] flex h-9 items-center justify-center bg-orange-600 px-4 text-center text-xs font-extrabold tracking-[0.12em] text-white">
-          MODO DEMOSTRACIÓN — Datos sintéticos
-        </div>
-      ) : null}
       {!online ? (
-        <div
-          className={`fixed inset-x-0 z-[80] flex min-h-11 items-center justify-center gap-2 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-amber-950 ${
-            demoMode ? "top-9" : "top-0"
-          }`}
-        >
+        <div className="fixed inset-x-0 top-0 z-[80] flex min-h-11 items-center justify-center gap-2 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-amber-950">
           <WifiOff aria-hidden="true" size={17} />
           Sin conexión. La disponibilidad debe verificarse antes de confirmar.
         </div>
       ) : null}
 
-      <aside
-        className={`fixed bottom-0 left-0 z-50 hidden w-64 flex-col bg-[#062f33] text-white lg:flex ${
-          demoMode ? "top-9" : "top-0"
-        }`}
-      >
+      <aside className="fixed bottom-0 left-0 top-0 z-50 hidden w-64 flex-col bg-[#062f33] text-white lg:flex">
         <div className="flex min-h-20 items-center border-b border-white/10 px-6">
           <Image
             src="/logos/quicksol-logo.svg"
@@ -188,7 +171,7 @@ function ShellContent({
       <div className="lg:pl-64">
         <header
           className={`sticky z-40 border-b border-stone-200 bg-white/95 backdrop-blur ${
-            online ? (demoMode ? "top-9" : "top-0") : demoMode ? "top-20" : "top-11"
+            online ? "top-0" : "top-11"
           }`}
         >
           <div className="flex min-h-18 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">

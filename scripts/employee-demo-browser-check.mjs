@@ -200,7 +200,12 @@ try {
       setValue(passwordInput, "demo-check-only");
       const text = document.body.innerText;
       return {
-        pendingMessage: text.includes("Integración de autenticación pendiente"),
+        pendingMessageRemoved: !text.includes(
+          "Integración de autenticación pendiente"
+        ),
+        demoBannerRemoved: !text.includes(
+          "MODO DEMOSTRACIÓN — Datos sintéticos"
+        ),
         emailEnabled: !email.disabled,
         passwordEnabled: !passwordInput.disabled,
         submitEnabled: !submit.disabled,
@@ -217,7 +222,8 @@ try {
       };
     })()`);
     if (
-      !pendingLogin.pendingMessage ||
+      !pendingLogin.pendingMessageRemoved ||
+      !pendingLogin.demoBannerRemoved ||
       !pendingLogin.emailEnabled ||
       !pendingLogin.passwordEnabled ||
       !pendingLogin.submitEnabled ||
@@ -236,13 +242,13 @@ try {
     );
   } else {
   const loginView = await evaluate(`({
-    banner: document.body.innerText.includes("MODO DEMOSTRACIÓN"),
+    bannerRemoved: !document.body.innerText.includes("MODO DEMOSTRACIÓN"),
     overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
     viewport: [window.innerWidth, window.innerHeight],
     url: location.href,
     text: document.body.innerText.slice(0, 600)
   })`);
-  if (!loginView.banner || loginView.overflow) {
+  if (!loginView.bannerRemoved || loginView.overflow) {
     throw new Error(
       `Login demo banner or portrait layout validation failed: ${JSON.stringify(
         loginView,
@@ -517,7 +523,7 @@ try {
       receiptNumber: text.match(/REC-DEMO-\\d{4}/)?.[0] || "",
       quoteNumber: text.match(/COT-DEMO-\\d{4}/)?.[0] || "",
       mark: text.includes("DOCUMENTO DE PRUEBA — SIN VALIDEZ COMERCIAL"),
-      banner: text.includes("MODO DEMOSTRACIÓN — Datos sintéticos"),
+      bannerRemoved: !text.includes("MODO DEMOSTRACIÓN — Datos sintéticos"),
       resetVisible: text.includes("Reiniciar datos de demostración"),
       orderConfirmed: text.includes("confirmed"),
       pdfStatus: response.status,
@@ -530,7 +536,7 @@ try {
     !receiptSummary.receiptNumber ||
     receiptSummary.quoteNumber !== quoteDetail.quoteNumber ||
     !receiptSummary.mark ||
-    !receiptSummary.banner ||
+    !receiptSummary.bannerRemoved ||
     !receiptSummary.resetVisible ||
     !receiptSummary.orderConfirmed ||
     receiptSummary.pdfStatus !== 200 ||

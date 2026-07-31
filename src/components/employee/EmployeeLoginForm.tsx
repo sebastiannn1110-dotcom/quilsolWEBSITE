@@ -8,10 +8,8 @@ import { commerceClient } from "@/lib/platform-api/client";
 
 export function EmployeeLoginForm({
   locale,
-  mode,
 }: {
   locale: string;
-  mode: "mock" | "platform" | "pending";
 }) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -44,16 +42,7 @@ export function EmployeeLoginForm({
   }
 
   return (
-    <div
-      className={`employee-portal-root grid min-h-dvh bg-[#f7f3ef] lg:grid-cols-[1.05fr_0.95fr] ${
-        mode === "mock" ? "pt-9" : ""
-      }`}
-    >
-      {mode === "mock" ? (
-        <div className="fixed inset-x-0 top-0 z-50 flex h-9 items-center justify-center bg-orange-600 px-4 text-center text-xs font-extrabold tracking-[0.12em] text-white">
-          MODO DEMOSTRACIÓN — Datos sintéticos
-        </div>
-      ) : null}
+    <div className="employee-portal-root grid min-h-dvh bg-[#f7f3ef] lg:grid-cols-[1.05fr_0.95fr]">
       <section className="relative hidden overflow-hidden bg-[#062f33] p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div
           className="absolute inset-0 opacity-40"
@@ -101,22 +90,6 @@ export function EmployeeLoginForm({
             <p className="mt-2 leading-7 text-slate-600">
               Acceso exclusivo para empleados y vendedores.
             </p>
-
-            {mode === "pending" ? (
-              <div
-                className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950"
-                role="status"
-              >
-                <strong>Integración de autenticación pendiente.</strong> Las
-                credenciales pueden ingresarse, pero el modo demostración debe
-                habilitarse en la configuración segura del servidor.
-              </div>
-            ) : mode === "mock" ? (
-              <div className="mt-6 rounded-xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950">
-                Modo demostración habilitado expresamente. Los datos de esta
-                sesión son sintéticos y no tienen validez comercial.
-              </div>
-            ) : null}
 
             <form
               className="mt-7 grid gap-5"

@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
 import { EmployeeLoginForm } from "@/components/employee/EmployeeLoginForm";
-import {
-  employeeAuthMode,
-  getEmployeeSession,
-} from "@/lib/platform-api/auth";
+import { getEmployeeSession } from "@/lib/platform-api/auth";
 import { isLocale } from "@/lib/dictionary";
 
 export const metadata = {
@@ -24,5 +21,5 @@ export default async function EmployeeLoginPage({
     redirect(`/${locale}/employee`);
   }
 
-  return <EmployeeLoginForm locale={locale} mode={employeeAuthMode()} />;
+  return <EmployeeLoginForm locale={locale} />;
 }
