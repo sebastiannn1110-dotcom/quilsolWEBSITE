@@ -99,6 +99,15 @@ describe("autenticación mock", () => {
     vi.stubEnv("PLATFORM_API_BASE_URL", "https://quick-sol.invalid");
     expect(employeeAuthMode()).toBe("mock");
   });
+
+  it.each([" true ", '"true"', "'TRUE'"])(
+    "tolera el valor de Render %s para activar la demo",
+    (configuredMode) => {
+      vi.stubEnv("EMPLOYEE_COMMERCE_DEMO_MODE", configuredMode);
+      vi.stubEnv("PLATFORM_API_BASE_URL", "");
+      expect(employeeAuthMode()).toBe("mock");
+    },
+  );
 });
 
 describe("permisos centrales", () => {

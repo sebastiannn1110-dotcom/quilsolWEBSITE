@@ -99,7 +99,11 @@ function decodeSession(token: string): EmployeeSession | null {
 }
 
 export function isEmployeeDemoMode() {
-  return process.env.EMPLOYEE_COMMERCE_DEMO_MODE === "true";
+  const configuredMode = process.env.EMPLOYEE_COMMERCE_DEMO_MODE
+    ?.trim()
+    .toLowerCase();
+
+  return ["true", '"true"', "'true'"].includes(configuredMode || "");
 }
 
 export function isEmployeeMockEnabled() {
